@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"fortio.org/dflag"
+	"fortio.org/dflag/dynloglevel"
 	"fortio.org/log"
 	"github.com/fsnotify/fsnotify"
 )
@@ -40,7 +41,9 @@ type Updater struct {
 }
 
 // Setup is a combination/shortcut for New+Initialize+Start.
+// It also sets up the `loglevel` flag.
 func Setup(flagSet *flag.FlagSet, dirPath string) (*Updater, error) {
+	dynloglevel.LoggerFlagSetup()
 	log.Infof("Configmap flag value watching on %v", dirPath)
 	u, err := New(flagSet, dirPath)
 	if err != nil {

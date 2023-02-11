@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"fortio.org/dflag"
+	"fortio.org/dflag/dynloglevel"
 	"fortio.org/log"
 )
 
@@ -24,8 +25,9 @@ type FlagsEndpoint struct {
 
 // NewFlagsEndpoint creates a new debug `http.HandlerFunc` collection for a given `FlagSet`
 // and an optional URL for Setter (needs to be secured). if setURL is empty, no setter function
-// will be enabled.
+// will be enabled. Also sets up `loglevel` flag as a dynamic flag.
 func NewFlagsEndpoint(flagSet *flag.FlagSet, setURL string) *FlagsEndpoint {
+	dynloglevel.LoggerFlagSetup()
 	return &FlagsEndpoint{flagSet: flagSet, setURL: setURL}
 }
 
