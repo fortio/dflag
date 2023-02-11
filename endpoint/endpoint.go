@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"fortio.org/dflag"
-	"fortio.org/fortio/fhttp"
 	"fortio.org/log"
 )
 
@@ -40,7 +39,7 @@ func HTTPErrf(resp http.ResponseWriter, statusCode int, message string, rest ...
 
 // SetFlag updates a dynamic flag to a new value.
 func (e *FlagsEndpoint) SetFlag(resp http.ResponseWriter, req *http.Request) {
-	fhttp.LogRequest(req, "SetFlag")
+	log.LogRequest(req, "SetFlag")
 	if e.setURL == "" {
 		HTTPErrf(resp, http.StatusForbidden, "setting flags is not enabled")
 		return
@@ -67,7 +66,7 @@ func (e *FlagsEndpoint) SetFlag(resp http.ResponseWriter, req *http.Request) {
 // ListFlags provides an HTML and JSON `http.HandlerFunc` that lists all Flags of a `FlagSet`.
 // Additional URL query parameters can be used such as `type=[dynamic,static]` or `only_changed=true`.
 func (e *FlagsEndpoint) ListFlags(resp http.ResponseWriter, req *http.Request) {
-	fhttp.LogRequest(req, "ListFlags")
+	log.LogRequest(req, "ListFlags")
 
 	onlyChanged := req.URL.Query().Get("only_changed") != ""
 	onlyDynamic := req.URL.Query().Get("type") == "dynamic"
