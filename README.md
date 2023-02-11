@@ -1,5 +1,8 @@
+[![codecov](https://codecov.io/github/fortio/dflag/branch/main/graph/badge.svg?token=LONYZDFQ7C)](https://codecov.io/github/fortio/dflag)
+
 This came from https://github.com/ldemailly/go-flagz, a fork of the code originally on https://github.com/mwitkow/go-flagz and https://github.com/improbable-eng/go-flagz with initial changes to get the go modules to work, reduce boiler plate needed for configmap watcher, avoid panic when there is extra whitespace, make the watcher work with regular files and relative paths and switched to standard golang flags.
 And now further changes, simplification, etc... as part of fortio.
+And then moved to a toplevel package in the fortio org.
 
 Thanks to [@mwitkow](https://github.com/mwitkow) for having created this originally.
 
@@ -13,17 +16,17 @@ or [Kubernetes](http://kubernetes.io) configmap changes.
 For a similar project for JVM languages (Java, scala) see [java-flagz](https://github.com/mwitkow/java-flagz)
 
 Now rewritten and simplified and extended thanks to Go 1.18 generics (use versions prior to 1.33 if you want to use the older per type implementation)
- 
+
 ## This sounds crazy. Why?
 
 File-based or command-line configuration can only be changed when a service restarts. Dynamic flags provide
 flexibility in normal operations and emergencies. Two examples:
- 
+
  * A new feature launches that you want to A/B test. You want to gradually enable it for a certain fraction of user
  requests (1%, 5%, 20%, 50%, 100%) without the need to restart servers.
- * Your service is getting overloaded and you want to disable certain costly features. You can't afford 
+ * Your service is getting overloaded and you want to disable certain costly features. You can't afford
  restarting because you'd lose important capacity.
- 
+
 All of this can be done simultaneously across a whole shard of your services.
 
 ## Features
@@ -58,8 +61,8 @@ Declare a single `flag.FlagSet` in some public package (e.g. `common.SharedFlagS
 ```go
 var (
   limitsConfigFlag = dflag.DynJSON(
-    common.SharedFlagSet, 
-    "rate_limiting_config", 
+    common.SharedFlagSet,
+    "rate_limiting_config",
     &rateLimitConfig{ DefaultRate: 10, Policy: "allow"},
     "Config for service's rate limit",
   ).WithValidator(rateLimitConfigValidator).WithNotifier(onRateLimitChange)
@@ -84,7 +87,7 @@ func MyHandler(resp http.ResponseWriter, req *http.Request) {
 }
 ```
 
-All access to `featuresFlag`, which is a `[]string` flag, is synchronised across go-routines using `atomic` pointer swaps. 
+All access to `featuresFlag`, which is a `[]string` flag, is synchronized across go-routines using `atomic` pointer swaps.
 
 ## Complete example
 

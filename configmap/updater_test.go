@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"fortio.org/assert"
-	"fortio.org/fortio/dflag"
-	"fortio.org/fortio/dflag/configmap"
+	"fortio.org/dflag"
+	"fortio.org/dflag/configmap"
 )
 
 const (

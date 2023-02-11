@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"fortio.org/assert"
-	"fortio.org/fortio/dflag"
+	"fortio.org/dflag"
 )
 
 func TestChecksumFlagSet_Differs(t *testing.T) {

@@ -13,7 +13,7 @@ import (
 	"testing"
 
 	"fortio.org/assert"
-	"fortio.org/fortio/dflag"
+	"fortio.org/dflag"
 )
 
 type endpointTestSuite struct {

@@ -13,8 +13,8 @@ import (
 	"path"
 	"strings"
 
-	"fortio.org/fortio/dflag"
-	"fortio.org/fortio/log"
+	"fortio.org/dflag"
+	"fortio.org/log"
 	"github.com/fsnotify/fsnotify"
 )
 

@@ -9,10 +9,10 @@ import (
 	"html/template"
 	"net/http"
 
-	"fortio.org/fortio/dflag"
-	"fortio.org/fortio/dflag/configmap"
-	"fortio.org/fortio/dflag/endpoint"
-	"fortio.org/fortio/log"
+	"fortio.org/dflag"
+	"fortio.org/dflag/configmap"
+	"fortio.org/dflag/endpoint"
+	"fortio.org/log"
 )
 
 var (

@@ -12,9 +12,9 @@ import (
 	"net/http"
 	"strings"
 
-	"fortio.org/fortio/dflag"
+	"fortio.org/dflag"
 	"fortio.org/fortio/fhttp"
-	"fortio.org/fortio/log"
+	"fortio.org/log"
 )
 
 // FlagsEndpoint is a collection of `http.HandlerFunc` that serve debug pages about a given `FlagSet.
