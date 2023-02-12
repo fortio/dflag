@@ -57,7 +57,7 @@ func (d *DynJSONValue) Set(rawInput string) error {
 	if err := json.Unmarshal([]byte(input), val); err != nil {
 		return err
 	}
-	return d.PostSet(val)
+	return d.SetV(val)
 }
 
 // String returns the canonical string representation of the type.

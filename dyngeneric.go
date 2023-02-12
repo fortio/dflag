@@ -225,10 +225,14 @@ func (d *DynValue[T]) Set(rawInput string) error {
 	if err != nil {
 		return err
 	}
-	return d.PostSet(val)
+	return d.SetV(val)
 }
 
-func (d *DynValue[T]) PostSet(val T) error {
+// SetV is for when the value is already parsed/of the correct type.
+// Validators and notifiers are triggered (only input mutator and parsing from string is skipped).
+// Ideally this would be called Set() and the other SetAsString() but
+// the flag api needs Set() to be the one taking a string.
+func (d *DynValue[T]) SetV(val T) error {
 	if d.mutator != nil {
 		val = d.mutator(val)
 	}

@@ -35,8 +35,9 @@ func LoggerFlagSetup() {
 		return // avoid redefining flag/make it ok for multiple function to init this.
 	}
 	// virtual dynLevel flag that maps back to actual level
-	_ = dflag.DynString(flag.CommandLine, "loglevel", log.GetLogLevel().String(),
-		fmt.Sprintf("loglevel, one of %v", log.LevelToStrA)).WithInputMutator(
+	defVal := log.GetLogLevel().String()
+	usage := fmt.Sprintf("`loglevel`, one of %v", log.LevelToStrA)
+	flag := dflag.New(defVal, usage).WithInputMutator(
 		func(inp string) string {
 			// The validation map has full lowercase and capitalized first letter version
 			return strings.ToLower(strings.TrimSpace(inp))
@@ -48,6 +49,7 @@ func LoggerFlagSetup() {
 		func(old, newStr string) {
 			_ = log.SetLogLevelStr(newStr) // will succeed as we just validated it first
 		})
+	dflag.Flag("loglevel", flag)
 	done = true
 }
 
