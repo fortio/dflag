@@ -89,6 +89,7 @@ type DynValue[T any] struct {
 	notifier     func(oldValue T, newValue T)
 	mutator      func(inp T) T
 	inpMutator   func(inp string) string
+	usage        string
 }
 
 func Dyn[T DynValueTypes](flagSet *flag.FlagSet, name string, value T, usage string) *DynValue[T] {
@@ -104,6 +105,7 @@ func dynInit[T any](dynValue *DynValue[T], flagSet *flag.FlagSet, name string, v
 	dynValue.flagSet = flagSet
 	dynValue.av.Store(value)
 	dynValue.inpMutator = strings.TrimSpace // default so parsing of numbers etc works well
+	dynValue.usage = usage
 	dynValue.ready = true
 }
 
@@ -132,6 +134,11 @@ func (d *DynValue[T]) Get() T {
 		return zero
 	}
 	return d.av.Load().(T)
+}
+
+// Usage returns the usage string for the flag.
+func (d *DynValue[T]) Usage() string {
+	return d.usage
 }
 
 // CommaStringToSlice converts a coma separated string to a slice.

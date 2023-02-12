@@ -17,6 +17,7 @@ const notifierTimeout = 100 * time.Millisecond
 func TestDynString_SetAndGet(t *testing.T) {
 	set := flag.NewFlagSet("foobar", flag.ContinueOnError)
 	dynFlag := DynString(set, "some_string_1", "something", "Use it or lose it")
+	assert.Equal(t, "Use it or lose it", dynFlag.Usage(), "Usage() should be what was passed in")
 	assert.Equal(t, "something", dynFlag.Get(), "value must be default after create")
 	err := set.Set("some_string_1", "else")
 	assert.NoError(t, err, "setting value must succeed")
