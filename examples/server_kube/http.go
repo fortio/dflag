@@ -25,12 +25,15 @@ var (
 	staticInt = flag.Int("example_my_static_int", 1337, "Something integery here.")
 
 	// With generics typing
-	dynStr   = dflag.Dyn(flag.CommandLine, "example_my_dynamic_string", "initial_value", "Something interesting here.")
-	dynInt   = dflag.Dyn(flag.CommandLine, "example_my_dynamic_int", int64(1337), "Something integery here.")
+	dynStr = dflag.Dyn(flag.CommandLine, "example_my_dynamic_string", "initial_value", "Something interesting here.")
+	dynInt = dflag.Dyn(flag.CommandLine, "example_my_dynamic_int", int64(1337), "Something `int`egery here.")
+	// This shows the wrong help until 1.20 and https://github.com/golang/go/issues/53473 workaround is removed
 	dynBool1 = dflag.Dyn(flag.CommandLine, "example_bool1", false, "Something true... or false. Starting false.")
 	// Or explicit:
 	dynBool2 = dflag.DynBool(flag.CommandLine, "example_bool2", true, "Something true... or false. Starting true.")
-
+	// Or new style:
+	dynBool3 = dflag.NewBool(true, "defined in 2 steps... Starting true.")
+	dynStr2  = dflag.New("starting string value", "explanation of the config variable")
 	// This is an example of a dynamically-modifiable JSON flag of an arbitrary type.
 	dynJSON = dflag.DynJSON(
 		flag.CommandLine,
@@ -46,6 +49,8 @@ var (
 )
 
 func main() {
+	dynBool3 = dflag.FlagBool("example_bool3", dynBool3)
+	dynStr2 = dflag.Flag("example_str2", dynStr2)
 	flag.Parse()
 	u, err := configmap.Setup(flag.CommandLine, *dirPathWatch)
 	if err != nil {

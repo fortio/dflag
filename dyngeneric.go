@@ -92,17 +92,44 @@ type DynValue[T any] struct {
 	usage        string
 }
 
-func Dyn[T DynValueTypes](flagSet *flag.FlagSet, name string, value T, usage string) *DynValue[T] {
+// New allows to define a dynamic flag in 2 steps. With the default value and other
+// options like validation in the first step (in a library code). And later
+// re-assigning using Flag()/FlagSet() to bind to an actual flag name and value.
+func New[T DynValueTypes](value T, usage string) *DynValue[T] {
 	dynValue := DynValue[T]{}
-	dynInit(&dynValue, flagSet, name, value, usage)
-	flagSet.Var(&dynValue, name, usage)
-	flagSet.Lookup(name).DefValue = fmt.Sprintf("%v", value)
+	dynInit(&dynValue, value, usage)
 	return &dynValue
 }
 
-func dynInit[T any](dynValue *DynValue[T], flagSet *flag.FlagSet, name string, value T, usage string) {
-	dynValue.flagName = name
+// Flag assigns a dynamic value to a command line flag.
+// e.g. in a library:
+//
+//	var Value1 = dflag.New("default value", "explanation for value1's usage")
+//
+// in a main/where the library is used:
+//
+//	dflag.Flag("flag1", library.Value1) // assigns to -flag1
+func Flag[T DynValueTypes](name string, o *DynValue[T]) *DynValue[T] {
+	return FlagSet(flag.CommandLine, name, o)
+}
+
+// FlagSet is like Flag but allows to specify the flagset to use.
+// also backward compatible with earlier versions of dflag.
+func FlagSet[T DynValueTypes](flagSet *flag.FlagSet, name string, dynValue *DynValue[T]) *DynValue[T] {
 	dynValue.flagSet = flagSet
+	dynValue.flagName = name
+	flagSet.Var(dynValue, name, dynValue.usage)
+	flagSet.Lookup(name).DefValue = fmt.Sprintf("%v", dynValue.av.Load())
+	return dynValue
+}
+
+// Dyn[type] is the all in one function to create a dynamic flag for a flagset.
+// For library prefer splitting into New() in library and Flag() in callers.
+func Dyn[T DynValueTypes](flagSet *flag.FlagSet, name string, value T, usage string) *DynValue[T] {
+	return FlagSet(flagSet, name, New(value, usage))
+}
+
+func dynInit[T any](dynValue *DynValue[T], value T, usage string) {
 	dynValue.av.Store(value)
 	dynValue.inpMutator = strings.TrimSpace // default so parsing of numbers etc works well
 	dynValue.usage = usage
@@ -111,6 +138,7 @@ func dynInit[T any](dynValue *DynValue[T], flagSet *flag.FlagSet, name string, v
 
 // Unfortunately IsBoolFlag isn't called, just presence is needed
 // https://github.com/golang/go/issues/53473
+// fixed in 1.20 only
 
 /*
 // lets the flag parsing know that -flagname is enough to turn to true.

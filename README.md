@@ -32,7 +32,7 @@ All of this can be done simultaneously across a whole shard of your services.
 ## Features
 
  * compatible with standard go `flag` package
- * dynamic `flag` that are thread-safe and efficient:
+ * dynamic `flag` that are thread-safe and efficient, now also `Dyn[T]` generic:
    - `DynBool`
    - `DynInt64`
    - `DynFloat64`
@@ -88,6 +88,14 @@ func MyHandler(resp http.ResponseWriter, req *http.Request) {
 ```
 
 All access to `featuresFlag`, which is a `[]string` flag, is synchronized across go-routines using `atomic` pointer swaps.
+## Library versus caller style
+
+```golang
+// In the library "libfoo" package
+var MyConfig = dflag.New("default value", "explanation of what that is for").WithValidator(MyValidator)
+// In the caller/users, bind to an actual flag:
+dflag.Flag("foocfg", libfoo.MyConfig) // defines -foocfg flag
+```
 
 ## Complete example
 
