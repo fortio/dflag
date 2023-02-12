@@ -29,14 +29,15 @@ import (
 
 var done = false
 
-// LoggerFlagSetup sets up the `loglevel` flag as a dynamic flag.
-func LoggerFlagSetup() {
+// LoggerFlagSetup sets up the `loglevel` flag as a dynamic flag
+// (or another name if desired/passed).
+func LoggerFlagSetup(optionalFlagName ...string) {
 	if done {
 		return // avoid redefining flag/make it ok for multiple function to init this.
 	}
 	// virtual dynLevel flag that maps back to actual level
 	defVal := log.GetLogLevel().String()
-	usage := fmt.Sprintf("`loglevel`, one of %v", log.LevelToStrA)
+	usage := fmt.Sprintf("log `level`, one of %v", log.LevelToStrA)
 	flag := dflag.New(defVal, usage).WithInputMutator(
 		func(inp string) string {
 			// The validation map has full lowercase and capitalized first letter version
@@ -49,7 +50,12 @@ func LoggerFlagSetup() {
 		func(old, newStr string) {
 			_ = log.SetLogLevelStr(newStr) // will succeed as we just validated it first
 		})
-	dflag.Flag("loglevel", flag)
+	if len(optionalFlagName) == 0 {
+		optionalFlagName = []string{"loglevel"}
+	}
+	for _, name := range optionalFlagName {
+		dflag.Flag(name, flag)
+	}
 	done = true
 }
 

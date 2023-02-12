@@ -40,6 +40,29 @@ func TestSetLevelFLag(t *testing.T) {
 	LoggerFlagSetup()
 }
 
+func TestMultipleFlagNames(t *testing.T) {
+	done = false // reset the test above
+	LoggerFlagSetup("l1", "l2")
+	_ = log.SetLogLevel(log.Info)
+	err := flag.CommandLine.Set("l2", "  deBUG\n")
+	if err != nil {
+		t.Errorf("unexpected error for valid level %v", err)
+	}
+	if flag.Lookup("l1").Value.String() != "debug" {
+		t.Errorf("l1 not synced with l2/not set to debug: %q", flag.Lookup("l1").Value.String())
+	}
+	prev := log.SetLogLevel(log.Info)
+	if prev != log.Debug {
+		t.Errorf("unexpected level after setting debug %v", prev)
+	}
+	err = flag.CommandLine.Set("l1", "bogus")
+	if err == nil {
+		t.Errorf("Didn't get an error setting bogus level")
+	}
+	// no harm in calling it twice
+	LoggerFlagSetup()
+}
+
 func TestChangeFlagsDefaultErrCase1(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
