@@ -11,6 +11,7 @@ import (
 
 	"fortio.org/dflag"
 	"fortio.org/dflag/configmap"
+	"fortio.org/dflag/dynloglevel"
 	"fortio.org/dflag/endpoint"
 	"fortio.org/log"
 )
@@ -49,8 +50,9 @@ var (
 )
 
 func main() {
-	dynBool3 = dflag.FlagBool("example_bool3", dynBool3)
-	dynStr2 = dflag.Flag("example_str2", dynStr2)
+	dflag.FlagBool("example_bool3", dynBool3)
+	dflag.Flag("example_str2", dynStr2)
+	dynloglevel.LoggerFlagSetup()
 	flag.Parse()
 	u, err := configmap.Setup(flag.CommandLine, *dirPathWatch)
 	if err != nil {
