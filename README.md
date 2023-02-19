@@ -1,21 +1,12 @@
 [![codecov](https://codecov.io/github/fortio/dflag/branch/main/graph/badge.svg?token=LONYZDFQ7C)](https://codecov.io/github/fortio/dflag)
-
-This came from https://github.com/ldemailly/go-flagz, a fork of the code originally on https://github.com/mwitkow/go-flagz and https://github.com/improbable-eng/go-flagz with initial changes to get the go modules to work, reduce boiler plate needed for configmap watcher, avoid panic when there is extra whitespace, make the watcher work with regular files and relative paths and switched to standard golang flags.
-And now further changes, simplification, etc... as part of fortio.
-And then moved to a toplevel package in the fortio org.
-
-Thanks to [@mwitkow](https://github.com/mwitkow) for having created this originally.
-
-# Fortio Dynamic Flags (was Go FlagZ)
-
 [![Apache 2.0 License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+# Fortio Dynamic Flags
 
 Dynamic, thread-safe `flag` variables that can be modified at runtime through files, URL endpoint,
 or [Kubernetes](http://kubernetes.io) configmap changes.
 
-For a similar project for JVM languages (Java, scala) see [java-flagz](https://github.com/mwitkow/java-flagz)
-
-Now rewritten and simplified and extended thanks to Go 1.18 generics (use versions prior to 1.33 if you want to use the older per type implementation)
+See History section below.
 
 ## This sounds crazy. Why?
 
@@ -32,7 +23,8 @@ All of this can be done simultaneously across a whole shard of your services.
 ## Features
 
  * compatible with standard go `flag` package
- * dynamic `flag` that are thread-safe and efficient, now also `Dyn[T]` generic:
+ * dynamic `flag` that are thread-safe and efficient
+   - `Dyn[T]` generic, or
    - `DynBool`
    - `DynInt64`
    - `DynFloat64`
@@ -54,7 +46,6 @@ Here's a teaser of the debug endpoint:
 ## Examples
 
 Declare a single `flag.FlagSet` in some public package (e.g. `common.SharedFlagSet`) that you'll use throughout your server or stick to `flag.CommandLine` default flagset for your binary.
-
 
 ### Dynamic JSON flag with a validator and notifier
 
@@ -88,20 +79,36 @@ func MyHandler(resp http.ResponseWriter, req *http.Request) {
 ```
 
 All access to `featuresFlag`, which is a `[]string` flag, is synchronized across go-routines using `atomic` pointer swaps.
+
 ## Library versus caller style
+NEW:
 
 ```golang
 // In the library "libfoo" package
-var MyConfig = dflag.New("default value", "explanation of what that is for").WithValidator(MyValidator)
+var MyConfig = dflag.New("default value", "explanation of what that is for").WithValidator(myValidator)
 // In the caller/users, bind to an actual flag:
 dflag.Flag("foocfg", libfoo.MyConfig) // defines -foocfg flag
 ```
 
 ## Complete example
 
-See a [http server](examples/server_kube) complete example.
+See a [http server](examples/server_kube) complete example or the [fortio.org/scli](https://github.com/fortio/scli#scli) package for easy reuse/configuration.
 
-# Status
+## History
+
+This came from https://github.com/ldemailly/go-flagz, a fork of the code originally on https://github.com/mwitkow/go-flagz and https://github.com/improbable-eng/go-flagz with initial changes to get the go modules to work, reduce boiler plate needed for configmap watcher, avoid panic when there is extra whitespace, make the watcher work with regular files and relative paths and switched to standard golang flags.
+
+And further changes, simplification, etc... as part of fortio.
+
+Including rewrite and simplifications taking advantage of go 1.18 and newer generics support (use versions in fortio prior to 1.33 if you want to use the older per type implementation)
+
+And now moved to a toplevel package in the fortio org.
+
+For a similar project for JVM languages (Java, scala) see [java-flagz](https://github.com/mwitkow/java-flagz)
+
+Thanks to [@mwitkow](https://github.com/mwitkow) for having created this originally.
+
+## Status
 
 This code is *production* quality. It's been running happily in production in its earlier incarnation at Improbable for years and now everywhere fortio runs.
 
