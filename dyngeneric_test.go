@@ -31,3 +31,10 @@ func TestDflag_NonDynamic(t *testing.T) {
 	assert.True(t, static != nil)
 	assert.False(t, IsFlagDynamic(static))
 }
+
+func TestSetToString(t *testing.T) {
+	s := Set[string]{"z": {}, "a": {}, "c": {}, "b": {}}
+	f := New(s, "test set")
+	assert.Equal(t, "a,b,c,z", s.String())
+	assert.Equal(t, "a,b,c,z", f.Get().String())
+}

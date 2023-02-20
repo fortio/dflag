@@ -5,6 +5,7 @@ package dflag
 import (
 	"flag"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -62,7 +63,7 @@ func ValidateDynSetMinElements[T comparable](count int) func(Set[T]) error {
 	}
 }
 
-// ValidateDynSliceMinElements validates that the given Set has at least x elements.
+// ValidateDynSliceMinElements validates that the given array has at least x elements.
 func ValidateDynSliceMinElements[T any](count int) func([]T) error {
 	return func(value []T) error {
 		if len(value) < count {
@@ -205,11 +206,24 @@ func parse[T any](input string) (val T, err error) {
 
 // SetFromSlice constructs a Set from a slice.
 func SetFromSlice[T comparable](items []T) Set[T] {
-	res := map[T]struct{}{}
+	// best pre-allocation if there are no duplicates
+	res := make(map[T]struct{}, len(items))
 	for _, item := range items {
 		res[item] = struct{}{}
 	}
 	return res
+}
+
+func (s Set[T]) String() string {
+	keys := make([]string, 0, len(s))
+	for k := range s {
+		// The Sprintf here is identity for the only Set type we support so far,
+		// ie Set[string], this is to avoid defining a StringSet Set[string] type
+		// related: https://github.com/golang/go/issues/58611
+		keys = append(keys, fmt.Sprintf("%v", k))
+	}
+	sort.Strings(keys)
+	return strings.Join(keys, ",")
 }
 
 // Set updates the value from a string representation in a thread-safe manner.
