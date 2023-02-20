@@ -120,7 +120,7 @@ func FlagSet[T DynValueTypes](flagSet *flag.FlagSet, name string, dynValue *DynV
 	dynValue.flagSet = flagSet
 	dynValue.flagName = name
 	flagSet.Var(dynValue, name, dynValue.usage)
-	flagSet.Lookup(name).DefValue = fmt.Sprintf("%v", dynValue.av.Load())
+	flagSet.Lookup(name).DefValue = dynValue.String()
 	return dynValue
 }
 

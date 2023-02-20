@@ -98,7 +98,7 @@ func (s *endpointTestSuite) TestCorrectlyRepresentsResources() {
 			Name:         "some_dyn_stringslice",
 			Description:  "Some dynamic slice text",
 			CurrentValue: "car,star",
-			DefaultValue: "[foo bar]",
+			DefaultValue: "foo,bar",
 			IsChanged:    true,
 			IsDynamic:    true,
 		},

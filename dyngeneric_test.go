@@ -42,7 +42,10 @@ func TestSetToString(t *testing.T) {
 func TestArrayToString(t *testing.T) {
 	s := []string{"z", "a", "c", "b"}
 	f := New(s, "test array")
+	Flag("testing123", f)
+	defValue := flag.CommandLine.Lookup("testing123").DefValue
 	// order preserved unlike for Set where we sort
 	print := f.String()
 	assert.Equal(t, "z,a,c,b", print)
+	assert.Equal(t, "z,a,c,b", defValue)
 }
