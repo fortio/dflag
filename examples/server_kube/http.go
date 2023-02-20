@@ -47,11 +47,15 @@ var (
 			},
 		},
 		"An arbitrary JSON struct.")
+	dynArray = dflag.New([]string{"z", "b", "a"}, "An array of strings (comma separated)")
+	dynSet   = dflag.New(dflag.Set[string]{"z": {}, "b": {}, "a": {}}, "An set of strings (comma separated)")
 )
 
 func main() {
 	dflag.FlagBool("example_bool3", dynBool3)
 	dflag.Flag("example_str2", dynStr2)
+	dflag.Flag("example_array", dynArray)
+	dflag.Flag("example_set", dynSet)
 	dynloglevel.LoggerFlagSetup()
 	flag.Parse()
 	u, err := configmap.Setup(flag.CommandLine, *dirPathWatch)

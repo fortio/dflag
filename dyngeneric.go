@@ -296,7 +296,12 @@ func (d *DynValue[T]) Type() string {
 
 // String returns the canonical string representation of the type.
 func (d *DynValue[T]) String() string {
-	return fmt.Sprintf("%v", d.Get())
+	switch v := any(d.Get()).(type) {
+	case []string:
+		return strings.Join(v, ",")
+	default:
+		return fmt.Sprintf("%v", d.Get())
+	}
 }
 
 // WithValueMutator adds a function that changes the value of a flag as needed.

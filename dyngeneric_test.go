@@ -38,3 +38,11 @@ func TestSetToString(t *testing.T) {
 	assert.Equal(t, "a,b,c,z", s.String())
 	assert.Equal(t, "a,b,c,z", f.Get().String())
 }
+
+func TestArrayToString(t *testing.T) {
+	s := []string{"z", "a", "c", "b"}
+	f := New(s, "test array")
+	// order preserved unlike for Set where we sort
+	print := f.String()
+	assert.Equal(t, "z,a,c,b", print)
+}
