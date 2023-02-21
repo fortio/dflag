@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"fortio.org/sets"
 	"golang.org/x/exp/constraints"
 )
 
@@ -50,11 +51,9 @@ func (*DynamicBoolValueTag) IsBoolFlag() bool {
 
 // ---- Generics section ---
 
-type Set[T comparable] map[T]struct{}
-
 // ValidateDynSetMinElements validates that the given Set has at least x elements.
-func ValidateDynSetMinElements[T comparable](count int) func(Set[T]) error {
-	return func(value Set[T]) error {
+func ValidateDynSetMinElements[T comparable](count int) func(sets.Set[T]) error {
+	return func(value sets.Set[T]) error {
 		if len(value) < count {
 			return fmt.Errorf("value set %+v must have at least %v elements", value, count)
 		}
@@ -62,7 +61,7 @@ func ValidateDynSetMinElements[T comparable](count int) func(Set[T]) error {
 	}
 }
 
-// ValidateDynSliceMinElements validates that the given Set has at least x elements.
+// ValidateDynSliceMinElements validates that the given array has at least x elements.
 func ValidateDynSliceMinElements[T any](count int) func([]T) error {
 	return func(value []T) error {
 		if len(value) < count {
@@ -75,7 +74,7 @@ func ValidateDynSliceMinElements[T any](count int) func([]T) error {
 // DynValueTypes are the types currently supported by Parse[T] and thus by Dyn[T].
 // DynJSON is special.
 type DynValueTypes interface {
-	bool | time.Duration | float64 | int64 | string | []string | Set[string]
+	bool | time.Duration | float64 | int64 | string | []string | sets.Set[string]
 }
 
 type DynValue[T any] struct {
@@ -119,7 +118,7 @@ func FlagSet[T DynValueTypes](flagSet *flag.FlagSet, name string, dynValue *DynV
 	dynValue.flagSet = flagSet
 	dynValue.flagName = name
 	flagSet.Var(dynValue, name, dynValue.usage)
-	flagSet.Lookup(name).DefValue = fmt.Sprintf("%v", dynValue.av.Load())
+	flagSet.Lookup(name).DefValue = dynValue.String()
 	return dynValue
 }
 
@@ -194,22 +193,13 @@ func parse[T any](input string) (val T, err error) {
 		*v = input
 	case *[]string:
 		*v = CommaStringToSlice(input)
-	case *Set[string]:
-		*v = SetFromSlice(CommaStringToSlice(input))
+	case *sets.Set[string]:
+		*v = sets.FromSlice(CommaStringToSlice(input))
 	default:
 		// JSON Set() and thus Parse() is handled in dynjson.go
 		err = fmt.Errorf("unexpected type %T", val)
 	}
 	return
-}
-
-// SetFromSlice constructs a Set from a slice.
-func SetFromSlice[T comparable](items []T) Set[T] {
-	res := map[T]struct{}{}
-	for _, item := range items {
-		res[item] = struct{}{}
-	}
-	return res
 }
 
 // Set updates the value from a string representation in a thread-safe manner.
@@ -282,7 +272,12 @@ func (d *DynValue[T]) Type() string {
 
 // String returns the canonical string representation of the type.
 func (d *DynValue[T]) String() string {
-	return fmt.Sprintf("%v", d.Get())
+	switch v := any(d.Get()).(type) {
+	case []string:
+		return strings.Join(v, ",")
+	default:
+		return fmt.Sprintf("%v", d.Get())
+	}
 }
 
 // WithValueMutator adds a function that changes the value of a flag as needed.

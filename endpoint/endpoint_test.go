@@ -97,8 +97,8 @@ func (s *endpointTestSuite) TestCorrectlyRepresentsResources() {
 		&flagJSON{
 			Name:         "some_dyn_stringslice",
 			Description:  "Some dynamic slice text",
-			CurrentValue: "[car star]",
-			DefaultValue: "[foo bar]",
+			CurrentValue: "car,star",
+			DefaultValue: "foo,bar",
 			IsChanged:    true,
 			IsDynamic:    true,
 		},

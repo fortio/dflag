@@ -1,4 +1,5 @@
 // Copyright 2015 Michal Witkowski. All Rights Reserved.
+// Copyright 2020-2023 Fortio Authors. All Rights Reserved.
 // See LICENSE for licensing terms.
 
 package endpoint

@@ -1,4 +1,5 @@
 // Copyright 2016 Michal Witkowski. All Rights Reserved.
+// Copyright 2020-2023 Fortio Authors. All Rights Reserved.
 // See LICENSE for licensing terms.
 
 package main
@@ -14,6 +15,7 @@ import (
 	"fortio.org/dflag/dynloglevel"
 	"fortio.org/dflag/endpoint"
 	"fortio.org/log"
+	"fortio.org/sets"
 )
 
 var (
@@ -47,11 +49,15 @@ var (
 			},
 		},
 		"An arbitrary JSON struct.")
+	dynArray = dflag.New([]string{"z", "b", "a"}, "An array of strings (comma separated)")
+	dynSet   = dflag.New(sets.New("z", "b", "a"), "An set of strings (comma separated)")
 )
 
 func main() {
 	dflag.FlagBool("example_bool3", dynBool3)
 	dflag.Flag("example_str2", dynStr2)
+	dflag.Flag("example_array", dynArray)
+	dflag.Flag("example_set", dynSet)
 	dynloglevel.LoggerFlagSetup()
 	flag.Parse()
 	u, err := configmap.Setup(flag.CommandLine, *dirPathWatch)

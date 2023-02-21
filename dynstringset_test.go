@@ -1,4 +1,5 @@
 // Copyright 2015 Michal Witkowski. All Rights Reserved.
+// Copyright 2020-2023 Fortio Authors. All Rights Reserved.
 // See LICENSE for licensing terms.
 
 package dflag
@@ -9,15 +10,16 @@ import (
 	"time"
 
 	"fortio.org/assert"
+	"fortio.org/sets"
 )
 
 func TestDynStringSet_SetAndGet(t *testing.T) {
 	set := flag.NewFlagSet("foobar", flag.ContinueOnError)
 	dynFlag := DynStringSet(set, "some_stringslice_1", []string{"foo", "bar"}, "Use it or lose it")
-	assert.Equal(t, Set[string]{"foo": {}, "bar": {}}, dynFlag.Get(), "value must be default after create")
+	assert.Equal(t, sets.New("foo", "bar"), dynFlag.Get(), "value must be default after create")
 	err := set.Set("some_stringslice_1", "car,bar")
 	assert.NoError(t, err, "setting value must succeed")
-	assert.Equal(t, Set[string]{"car": {}, "bar": {}}, dynFlag.Get(), "value must be set after update")
+	assert.Equal(t, sets.New("car", "bar"), dynFlag.Get(), "value must be set after update")
 }
 
 func TestDynStringSet_Contains(t *testing.T) {
@@ -45,9 +47,9 @@ func TestDynStringSet_FiresValidators(t *testing.T) {
 
 func TestDynStringSet_FiresNotifier(t *testing.T) {
 	waitCh := make(chan struct{}, 1)
-	notifier := func(oldVal Set[string], newVal Set[string]) {
-		assert.EqualValues(t, Set[string]{"foo": {}, "bar": {}}, oldVal, "old value in notify must match previous value")
-		assert.EqualValues(t, Set[string]{"car": {}, "far": {}}, newVal, "new value in notify must match set value")
+	notifier := func(oldVal sets.Set[string], newVal sets.Set[string]) {
+		assert.EqualValues(t, sets.Set[string]{"foo": {}, "bar": {}}, oldVal, "old value in notify must match previous value")
+		assert.EqualValues(t, sets.Set[string]{"car": {}, "far": {}}, newVal, "new value in notify must match set value")
 		waitCh <- struct{}{}
 	}
 
