@@ -49,3 +49,23 @@ func TestArrayToString(t *testing.T) {
 	assert.Equal(t, "z,a,c,b", print)
 	assert.Equal(t, "z,a,c,b", defValue)
 }
+
+func TestRemoveCommon(t *testing.T) {
+	setA := NewSet("a", "b", "c", "d")
+	setB := NewSet("b", "d", "e", "f", "g")
+	setAA := setA.Clone()
+	setBB := setB.Clone()
+	RemoveCommon(setAA, setBB)
+	assert.Equal(t, "a,c", setAA.String())   // removed
+	assert.Equal(t, "e,f,g", setBB.String()) // added
+	// Swap order to exercise the optimization on length of iteration
+	// also check clone is not modifying the original etc
+	setAA = setB.Clone() // putting B in AA on purpose and vice versa
+	setBB = setA.Clone()
+	RemoveCommon(setAA, setBB)
+	assert.Equal(t, "a,c", setBB.String())
+	assert.Equal(t, "e,f,g", setAA.String())
+	assert.True(t, setBB.Has("c"))
+	setBB.Remove("c")
+	assert.False(t, setBB.Has("c"))
+}
