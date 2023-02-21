@@ -5,12 +5,12 @@ package dflag
 import (
 	"flag"
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
 
+	"fortio.org/sets"
 	"golang.org/x/exp/constraints"
 )
 
@@ -51,11 +51,9 @@ func (*DynamicBoolValueTag) IsBoolFlag() bool {
 
 // ---- Generics section ---
 
-type Set[T comparable] map[T]struct{}
-
 // ValidateDynSetMinElements validates that the given Set has at least x elements.
-func ValidateDynSetMinElements[T comparable](count int) func(Set[T]) error {
-	return func(value Set[T]) error {
+func ValidateDynSetMinElements[T comparable](count int) func(sets.Set[T]) error {
+	return func(value sets.Set[T]) error {
 		if len(value) < count {
 			return fmt.Errorf("value set %+v must have at least %v elements", value, count)
 		}
@@ -76,7 +74,7 @@ func ValidateDynSliceMinElements[T any](count int) func([]T) error {
 // DynValueTypes are the types currently supported by Parse[T] and thus by Dyn[T].
 // DynJSON is special.
 type DynValueTypes interface {
-	bool | time.Duration | float64 | int64 | string | []string | Set[string]
+	bool | time.Duration | float64 | int64 | string | []string | sets.Set[string]
 }
 
 type DynValue[T any] struct {
@@ -195,81 +193,13 @@ func parse[T any](input string) (val T, err error) {
 		*v = input
 	case *[]string:
 		*v = CommaStringToSlice(input)
-	case *Set[string]:
-		*v = SetFromSlice(CommaStringToSlice(input))
+	case *sets.Set[string]:
+		*v = sets.FromSlice(CommaStringToSlice(input))
 	default:
 		// JSON Set() and thus Parse() is handled in dynjson.go
 		err = fmt.Errorf("unexpected type %T", val)
 	}
 	return
-}
-
-// SetFromSlice constructs a Set from a slice.
-func SetFromSlice[T comparable](items []T) Set[T] {
-	// best pre-allocation if there are no duplicates
-	res := make(map[T]struct{}, len(items))
-	for _, item := range items {
-		res[item] = struct{}{}
-	}
-	return res
-}
-
-func (s Set[T]) Clone() Set[T] {
-	res := make(Set[T], len(s))
-	for k := range s {
-		res.Add(k)
-	}
-	return res
-}
-
-func (s Set[T]) Add(item ...T) {
-	for _, i := range item {
-		s[i] = struct{}{}
-	}
-}
-
-func (s Set[T]) Has(item T) bool {
-	_, found := s[item]
-	return found
-}
-
-func (s Set[T]) Remove(item ...T) {
-	for _, i := range item {
-		delete(s, i)
-	}
-}
-
-func NewSet[T comparable](item ...T) Set[T] {
-	res := make(Set[T], len(item))
-	res.Add(item...)
-	return res
-}
-
-func (s Set[T]) String() string {
-	keys := make([]string, 0, len(s))
-	for k := range s {
-		// The Sprintf here is identity for the only Set type we support so far,
-		// ie Set[string], this is to avoid defining a StringSet Set[string] type
-		// related: https://github.com/golang/go/issues/58611
-		keys = append(keys, fmt.Sprintf("%v", k))
-	}
-	sort.Strings(keys)
-	return strings.Join(keys, ",")
-}
-
-// RemoveCommon removes elements from both sets that are in both,
-// leaving only the delta. Useful for Notifier on Set so that
-// oldValue has what has been removed and newValue has what has been added.
-func RemoveCommon[T comparable](a, b Set[T]) {
-	if len(a) > len(b) {
-		a, b = b, a
-	}
-	for e := range a {
-		if _, found := b[e]; found {
-			delete(a, e)
-			delete(b, e)
-		}
-	}
 }
 
 // Set updates the value from a string representation in a thread-safe manner.

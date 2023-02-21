@@ -6,12 +6,14 @@ package dflag
 import (
 	"flag"
 	"fmt"
+
+	"fortio.org/sets"
 )
 
 // DynStringSet creates a `Flag` that represents `map[string]struct{}` which is safe to change dynamically at runtime.
 // Unlike `pflag.StringSlice`, consecutive sets don't append to the slice, but override it.
 func DynStringSet(flagSet *flag.FlagSet, name string, value []string, usage string) *DynStringSetValue {
-	d := Dyn(flagSet, name, SetFromSlice(value), usage)
+	d := Dyn(flagSet, name, sets.FromSlice(value), usage)
 	return &DynStringSetValue{d}
 }
 
@@ -19,7 +21,7 @@ func DynStringSet(flagSet *flag.FlagSet, name string, value []string, usage stri
 
 // DynStringSetValue implements a dynamic set of strings.
 type DynStringSetValue struct {
-	*DynValue[Set[string]]
+	*DynValue[sets.Set[string]]
 }
 
 // Contains returns whether the specified string is in the flag.
@@ -39,6 +41,6 @@ func (d *DynStringSetValue) String() string {
 	return fmt.Sprintf("%v", arr)
 }
 
-func ValidateDynStringSetMinElements(count int) func(Set[string]) error {
+func ValidateDynStringSetMinElements(count int) func(sets.Set[string]) error {
 	return ValidateDynSetMinElements[string](count)
 }
