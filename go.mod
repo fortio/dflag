@@ -3,7 +3,7 @@ module fortio.org/dflag
 go 1.19
 
 require (
-	fortio.org/assert v1.1.4
+	fortio.org/assert v1.2.0
 	fortio.org/log v1.3.0
 	fortio.org/sets v1.0.3
 	github.com/fsnotify/fsnotify v1.6.0
