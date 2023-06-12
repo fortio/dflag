@@ -1,5 +1,5 @@
-fortio.org/assert v1.1.4 h1:Za1RaG+OjsTMpQS3J3UCvTF6wc4+IOHCz+jAOU37Y4o=
-fortio.org/assert v1.1.4/go.mod h1:039mG+/iYDPO8Ibx8TrNuJCm2T2SuhwRI3uL9nHTTls=
+fortio.org/assert v1.2.0 h1:XscfvR8yp4xW7OMCvNbCsieRFDxlwdEcb69+JZRp6LA=
+fortio.org/assert v1.2.0/go.mod h1:039mG+/iYDPO8Ibx8TrNuJCm2T2SuhwRI3uL9nHTTls=
 fortio.org/log v1.3.0 h1:bESPvuQGKejw7rrx41Sg3GoF+tsrB7oC08PxBs5/AM0=
 fortio.org/log v1.3.0/go.mod h1:u/8/2lyczXq52aT5Nw6reD+3cR6m/EbS2jBiIYhgiTU=
 fortio.org/sets v1.0.3 h1:HzewdGjH69YmyW06yzplL35lGr+X4OcqQt0qS6jbaO4=
