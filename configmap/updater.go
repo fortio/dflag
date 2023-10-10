@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync/atomic"
 
 	"fortio.org/dflag"
 	"fortio.org/dflag/dynloglevel"
@@ -38,6 +39,7 @@ type Updater struct {
 	watcher    *fsnotify.Watcher
 	flagSet    *flag.FlagSet
 	done       chan bool
+	warnings   atomic.Int32 // Count of unknown flags that have been logged (increases at each iteration).
 }
 
 // Setup is a combination/shortcut for New+Initialize+Start.
@@ -124,9 +126,13 @@ func (u *Updater) readAll(dynamicOnly bool) error {
 			continue
 		}
 		fullPath := path.Join(u.dirPath, f.Name())
+		log.S(log.Debug, "checking flag", log.Str("flag", f.Name()), log.Str("path", fullPath))
 		if err := u.readFlagFile(fullPath, dynamicOnly); err != nil {
 			if errors.Is(err, errFlagNotDynamic) && dynamicOnly {
 				// ignore
+			} else if errors.Is(err, errFlagNotFound) {
+				log.S(log.Warning, "config map for unknown flag", log.Str("flag", f.Name()), log.Str("path", fullPath))
+				u.warnings.Add(1)
 			} else {
 				errorStrings = append(errorStrings, fmt.Sprintf("flag %v: %v", f.Name(), err.Error()))
 			}
@@ -137,6 +143,11 @@ func (u *Updater) readAll(dynamicOnly bool) error {
 			len(errorStrings), strings.Join(errorStrings, "\n"))
 	}
 	return nil
+}
+
+// Return the warnings count.
+func (u *Updater) Warnings() int {
+	return int(u.warnings.Load())
 }
 
 func (u *Updater) readFlagFile(fullPath string, dynamicOnly bool) error {
