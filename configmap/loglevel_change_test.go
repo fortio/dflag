@@ -36,13 +36,20 @@ func TestDynamicLogLevel(t *testing.T) {
 	if err = os.Mkdir(pDir, 0o755); err != nil {
 		t.Fatalf("unable to make %v: %v", pDir, err)
 	}
+	fName := path.Join(pDir, "extra_flag")
+	if err = os.WriteFile(fName, []byte("ignored"), 0o644); err != nil {
+		t.Fatalf("unable to write %v: %v", fName, err)
+	}
 	var u *configmap.Updater
 	log.SetLogLevel(log.Debug)
 	if u, err = configmap.Setup(flag.CommandLine, pDir); err != nil {
 		t.Fatalf("unexpected error setting up config watch: %v", err)
 	}
 	defer u.Stop()
-	fName := path.Join(pDir, "loglevel")
+	if u.Warnings() != 1 {
+		t.Errorf("Expected exactly 1 warning (extra flag), got %d", u.Warnings())
+	}
+	fName = path.Join(pDir, "loglevel")
 	// Test also the new normalization (space trimmimg and captitalization)
 	if err = os.WriteFile(fName, []byte(" InFO\n\n"), 0o644); err != nil {
 		t.Fatalf("unable to write %v: %v", fName, err)
