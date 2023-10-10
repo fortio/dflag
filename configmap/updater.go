@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync/atomic"
 
 	"fortio.org/dflag"
 	"fortio.org/dflag/dynloglevel"
@@ -38,7 +39,7 @@ type Updater struct {
 	watcher    *fsnotify.Watcher
 	flagSet    *flag.FlagSet
 	done       chan bool
-	warnings   int // Count of unknown flags that have been logged.
+	warnings   atomic.Int32 // Count of unknown flags that have been logged (increases at each iteration).
 }
 
 // Setup is a combination/shortcut for New+Initialize+Start.
@@ -73,7 +74,6 @@ func New(flagSet *flag.FlagSet, dirPath string) (*Updater, error) {
 		watcher:    watcher,
 		started:    false,
 		done:       nil,
-		warnings:   0,
 	}, nil
 }
 
@@ -132,7 +132,7 @@ func (u *Updater) readAll(dynamicOnly bool) error {
 				// ignore
 			} else if errors.Is(err, errFlagNotFound) {
 				log.S(log.Warning, "config map for unknown flag", log.Str("flag", f.Name()), log.Str("path", fullPath))
-				u.warnings++
+				u.warnings.Add(1)
 			} else {
 				errorStrings = append(errorStrings, fmt.Sprintf("flag %v: %v", f.Name(), err.Error()))
 			}
@@ -145,9 +145,9 @@ func (u *Updater) readAll(dynamicOnly bool) error {
 	return nil
 }
 
-// Return the warnings count. Thread safety?
+// Return the warnings count.
 func (u *Updater) Warnings() int {
-	return u.warnings
+	return int(u.warnings.Load())
 }
 
 func (u *Updater) readFlagFile(fullPath string, dynamicOnly bool) error {
