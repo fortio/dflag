@@ -65,8 +65,8 @@ func ChangeFlagsDefault(newDefault string, flagNames ...string) {
 	for _, flagName := range flagNames {
 		f := flag.Lookup(flagName)
 		if f == nil {
-			log.Fatalf("flag %s not found", flagName)
-			continue // not reached but linter doesn't know Fatalf panics/exits
+			log.Fatalf("flag %s not found", flagName) //nolint:revive // we know it's unreachable after
+			continue                                  // not reached but linter doesn't know Fatalf panics/exits
 		}
 		f.DefValue = newDefault
 		err := f.Value.Set(newDefault)

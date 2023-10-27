@@ -128,12 +128,10 @@ func (u *Updater) readAll(dynamicOnly bool) error {
 		fullPath := path.Join(u.dirPath, f.Name())
 		log.S(log.Debug, "checking flag", log.Str("flag", f.Name()), log.Str("path", fullPath))
 		if err := u.readFlagFile(fullPath, dynamicOnly); err != nil {
-			if errors.Is(err, errFlagNotDynamic) && dynamicOnly {
-				// ignore
-			} else if errors.Is(err, errFlagNotFound) {
+			if errors.Is(err, errFlagNotFound) {
 				log.S(log.Warning, "config map for unknown flag", log.Str("flag", f.Name()), log.Str("path", fullPath))
 				u.warnings.Add(1)
-			} else {
+			} else if !(errors.Is(err, errFlagNotDynamic) && dynamicOnly) {
 				errorStrings = append(errorStrings, fmt.Sprintf("flag %v: %v", f.Name(), err.Error()))
 			}
 		}
