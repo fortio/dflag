@@ -100,7 +100,7 @@ func New[T DynValueTypes](value T, usage string) *DynValue[T] {
 	return &dynValue
 }
 
-// Flag assigns a dynamic value to a command line flag.
+// Flag binds a dynamic value to a command line flag.
 // e.g. in a library:
 //
 //	var Value1 = dflag.New("default value", "explanation for value1's usage")
