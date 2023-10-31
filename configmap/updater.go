@@ -40,6 +40,7 @@ type Updater struct {
 	flagSet    *flag.FlagSet
 	done       chan bool
 	warnings   atomic.Int32 // Count of unknown flags that have been logged (increases at each iteration).
+	errors     atomic.Int32 // Count of validation errors that have been logged (increases at each iteration).
 }
 
 // Setup is a combination/shortcut for New+Initialize+Start.
@@ -133,6 +134,7 @@ func (u *Updater) readAll(dynamicOnly bool) error {
 				u.warnings.Add(1)
 			} else if !(errors.Is(err, errFlagNotDynamic) && dynamicOnly) {
 				errorStrings = append(errorStrings, fmt.Sprintf("flag %v: %v", f.Name(), err.Error()))
+				u.errors.Add(1)
 			}
 		}
 	}
@@ -146,6 +148,11 @@ func (u *Updater) readAll(dynamicOnly bool) error {
 // Return the warnings count.
 func (u *Updater) Warnings() int {
 	return int(u.warnings.Load())
+}
+
+// Return the errors count.
+func (u *Updater) Errors() int {
+	return int(u.errors.Load())
 }
 
 func (u *Updater) readFlagFile(fullPath string, dynamicOnly bool) error {
@@ -201,6 +208,7 @@ func (u *Updater) watchForUpdates() {
 					flagName := path.Base(event.Name)
 					if err := u.readFlagFile(event.Name, true); err != nil {
 						log.Errf("dflag: failed setting flag %s: %v", flagName, err.Error())
+						u.errors.Add(1)
 					}
 				case fsnotify.Chmod:
 				}

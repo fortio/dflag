@@ -16,6 +16,7 @@ package configmap_test // this used to be in fortio.org/fortio/fnet/dyanmic_logg
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"path"
 	"testing"
@@ -28,7 +29,13 @@ import (
 )
 
 func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
-	binF := dflag.Dyn(flag.CommandLine, "binary_flag", []byte{}, "a test binary flag")
+	binF := dflag.Dyn(flag.CommandLine, "binary_flag", []byte{}, "a test binary flag").WithValidator(func(data []byte) error {
+		l := len(data)
+		if l > 4 {
+			return fmt.Errorf("generating error for binary flag len %d", l)
+		}
+		return nil
+	})
 	log.SetDefaultsForClientTools()
 	tmpDir, err := os.MkdirTemp("", "fortio-logger-test")
 	if err != nil {
@@ -74,4 +81,11 @@ func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
 	assert.Equal(t, binF.Get(), []byte{1, 0})
 	// put back debug
 	log.SetLogLevel(log.Debug)
+	assert.Equal(t, u.Errors(), 0)
+	// Now create validation error on binary flag:
+	if err = os.WriteFile(binaryFlag, []byte{1, 2, 3, 4, 5}, 0o644); err != nil {
+		t.Fatalf("unable to write %v: %v", binaryFlag, err)
+	}
+	time.Sleep(1 * time.Second)
+	assert.Equal(t, u.Errors(), 1)
 }
