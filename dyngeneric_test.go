@@ -44,11 +44,16 @@ func TestArrayToString(t *testing.T) {
 	s := []string{"z", "a", "c", "b"}
 	f := New(s, "test array")
 	Flag("testing123", f)
-	defValue := flag.CommandLine.Lookup("testing123").DefValue
+	flag := flag.CommandLine.Lookup("testing123")
+	defValue := flag.DefValue
 	// order preserved unlike for sets.Set where we sort
 	str := f.String()
 	assert.Equal(t, "z,a,c,b", str)
 	assert.Equal(t, "z,a,c,b", defValue)
+	b := IsBinary(flag)
+	if b != nil {
+		t.Errorf("flag %v isn't binary yet got non nil: %v", flag, b)
+	}
 }
 
 func TestRemoveCommon(t *testing.T) {
@@ -69,4 +74,22 @@ func TestRemoveCommon(t *testing.T) {
 	assert.True(t, setBB.Has("c"))
 	setBB.Remove("c")
 	assert.False(t, setBB.Has("c"))
+}
+
+func TestBinary(t *testing.T) {
+	set := flag.NewFlagSet("foobar", flag.ContinueOnError)
+	dynFlag := Dyn(set, "some_binary", []byte{2, 1, 0}, "some binary values")
+	assert.Equal(t, []byte{2, 1, 0}, dynFlag.Get(), "value must be default after create")
+	err := set.Set("some_binary", "\nAAEC\n") // extra newlines are fine
+	assert.NoError(t, err, "setting value must succeed")
+	assert.Equal(t, []byte{0, 1, 2}, dynFlag.Get(), "value must be set after update")
+	str := dynFlag.String()
+	assert.Equal(t, "AAEC", str, "value when printed must be base64 encoded")
+	err = set.Set("some_binary", "foo bar")
+	assert.Error(t, err, "setting bogus base64 should fail")
+	flag := set.Lookup("some_binary")
+	assert.True(t, IsFlagDynamic(flag), "flag must be dynamic")
+	if IsBinary(flag) == nil {
+		t.Errorf("flag %v isn't binary yet it should", flag)
+	}
 }

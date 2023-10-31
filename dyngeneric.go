@@ -3,6 +3,7 @@
 package dflag
 
 import (
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"strconv"
@@ -43,6 +44,15 @@ func IsFlagDynamic(f *flag.Flag) bool {
 	return df.IsDynamicFlag() // will clearly return true if it exists
 }
 
+// IsBinary returns the binary flag or nil depending on if the given Flag
+// is a []byte dynamic value or not (for confimap/file based setting).
+func IsBinary(f *flag.Flag) *DynValue[[]byte] {
+	if v, ok := f.Value.(*DynValue[[]byte]); ok {
+		return v
+	}
+	return nil
+}
+
 type DynamicBoolValueTag struct{}
 
 func (*DynamicBoolValueTag) IsBoolFlag() bool {
@@ -74,7 +84,7 @@ func ValidateDynSliceMinElements[T any](count int) func([]T) error {
 // DynValueTypes are the types currently supported by Parse[T] and thus by Dyn[T].
 // DynJSON is special.
 type DynValueTypes interface {
-	bool | time.Duration | float64 | int64 | string | []string | sets.Set[string]
+	bool | time.Duration | float64 | int64 | string | []string | sets.Set[string] | []byte
 }
 
 type DynValue[T any] struct {
@@ -189,6 +199,8 @@ func parse[T any](input string) (val T, err error) {
 		*v, err = strconv.ParseFloat(strings.TrimSpace(input), 64)
 	case *time.Duration:
 		*v, err = time.ParseDuration(input)
+	case *[]byte:
+		*v, err = base64.StdEncoding.DecodeString(input)
 	case *string:
 		*v = input
 	case *[]string:
@@ -275,8 +287,10 @@ func (d *DynValue[T]) String() string {
 	switch v := any(d.Get()).(type) {
 	case []string:
 		return strings.Join(v, ",")
+	case []byte:
+		return base64.StdEncoding.EncodeToString(v)
 	default:
-		return fmt.Sprintf("%v", d.Get())
+		return fmt.Sprintf("%v", v)
 	}
 }
 
