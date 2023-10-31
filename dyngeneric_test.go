@@ -78,6 +78,8 @@ func TestBinary(t *testing.T) {
 	err := set.Set("some_binary", "\nAAEC\n") // extra newlines are fine
 	assert.NoError(t, err, "setting value must succeed")
 	assert.Equal(t, []byte{0, 1, 2}, dynFlag.Get(), "value must be set after update")
+	str := dynFlag.String()
+	assert.Equal(t, "AAEC", str, "value when printed must be base64 encoded")
 	err = set.Set("some_binary", "foo bar")
 	assert.Error(t, err, "setting bogus base64 should fail")
 }

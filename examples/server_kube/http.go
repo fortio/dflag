@@ -49,8 +49,9 @@ var (
 			},
 		},
 		"An arbitrary JSON struct.")
-	dynArray = dflag.New([]string{"z", "b", "a"}, "An array of strings (comma separated)")
-	dynSet   = dflag.New(sets.New("z", "b", "a"), "An set of strings (comma separated)")
+	dynArray  = dflag.New([]string{"z", "b", "a"}, "An array of strings (comma separated)")
+	dynSet    = dflag.New(sets.New("z", "b", "a"), "An set of strings (comma separated)")
+	dynBinary = dflag.Dyn(flag.CommandLine, "example_binary", []byte{0x00, 0x01, 0x02}, "A binary value")
 )
 
 func main() {

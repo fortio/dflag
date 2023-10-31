@@ -278,8 +278,10 @@ func (d *DynValue[T]) String() string {
 	switch v := any(d.Get()).(type) {
 	case []string:
 		return strings.Join(v, ",")
+	case []byte:
+		return base64.StdEncoding.EncodeToString(v)
 	default:
-		return fmt.Sprintf("%v", d.Get())
+		return fmt.Sprintf("%v", v)
 	}
 }
 
