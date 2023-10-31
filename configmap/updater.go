@@ -161,8 +161,16 @@ func (u *Updater) readFlagFile(fullPath string, dynamicOnly bool) error {
 	if err != nil {
 		return err
 	}
+	if v := dflag.IsBinary(flag); v != nil {
+		log.Infof("Updating binary %q to new blob (len %d)", flagName, len(content))
+		err = v.SetV(content)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 	str := string(content)
-	log.Infof("updating %v to %q", flagName, str)
+	log.Infof("Updating %q to %q", flagName, str)
 	// do not call flag.Value.Set, instead go through flagSet.Set to change "changed" state.
 	return u.flagSet.Set(flagName, str)
 }

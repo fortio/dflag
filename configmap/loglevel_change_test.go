@@ -21,11 +21,14 @@ import (
 	"testing"
 	"time"
 
+	"fortio.org/assert"
+	"fortio.org/dflag"
 	"fortio.org/dflag/configmap"
 	"fortio.org/log"
 )
 
-func TestDynamicLogLevel(t *testing.T) {
+func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
+	binF := dflag.Dyn(flag.CommandLine, "binary_flag", []byte{}, "a test binary flag")
 	log.SetDefaultsForClientTools()
 	tmpDir, err := os.MkdirTemp("", "fortio-logger-test")
 	if err != nil {
@@ -40,6 +43,10 @@ func TestDynamicLogLevel(t *testing.T) {
 	if err = os.WriteFile(fName, []byte("ignored"), 0o644); err != nil {
 		t.Fatalf("unable to write %v: %v", fName, err)
 	}
+	binaryFlag := path.Join(pDir, "binary_flag")
+	if err = os.WriteFile(binaryFlag, []byte{0, 1, 2, 3}, 0o644); err != nil {
+		t.Fatalf("unable to write %v: %v", binaryFlag, err)
+	}
 	var u *configmap.Updater
 	log.SetLogLevel(log.Debug)
 	if u, err = configmap.Setup(flag.CommandLine, pDir); err != nil {
@@ -49,8 +56,13 @@ func TestDynamicLogLevel(t *testing.T) {
 	if u.Warnings() != 1 {
 		t.Errorf("Expected exactly 1 warning (extra flag), got %d", u.Warnings())
 	}
+	assert.Equal(t, binF.Get(), []byte{0, 1, 2, 3})
+	// Now update that flag (and the loglevel)
+	if err = os.WriteFile(binaryFlag, []byte{1, 0}, 0o644); err != nil {
+		t.Fatalf("unable to write %v: %v", binaryFlag, err)
+	}
 	fName = path.Join(pDir, "loglevel")
-	// Test also the new normalization (space trimmimg and captitalization)
+	// Test also the new normalization (space trimming and capitalization)
 	if err = os.WriteFile(fName, []byte(" InFO\n\n"), 0o644); err != nil {
 		t.Fatalf("unable to write %v: %v", fName, err)
 	}
@@ -59,6 +71,7 @@ func TestDynamicLogLevel(t *testing.T) {
 	if newLevel != log.Info {
 		t.Errorf("Loglevel didn't change as expected, still %v %v", newLevel, newLevel.String())
 	}
+	assert.Equal(t, binF.Get(), []byte{1, 0})
 	// put back debug
 	log.SetLogLevel(log.Debug)
 }

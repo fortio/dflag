@@ -44,6 +44,15 @@ func IsFlagDynamic(f *flag.Flag) bool {
 	return df.IsDynamicFlag() // will clearly return true if it exists
 }
 
+// IsBinary returns the binary flag or nil depending on if the given Flag
+// is a []byte dynamic value or not (for confimap/file based setting).
+func IsBinary(f *flag.Flag) *DynValue[[]byte] {
+	if v, ok := f.Value.(*DynValue[[]byte]); ok {
+		return v
+	}
+	return nil
+}
+
 type DynamicBoolValueTag struct{}
 
 func (*DynamicBoolValueTag) IsBoolFlag() bool {
