@@ -3,6 +3,7 @@
 package dflag
 
 import (
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"strconv"
@@ -74,7 +75,7 @@ func ValidateDynSliceMinElements[T any](count int) func([]T) error {
 // DynValueTypes are the types currently supported by Parse[T] and thus by Dyn[T].
 // DynJSON is special.
 type DynValueTypes interface {
-	bool | time.Duration | float64 | int64 | string | []string | sets.Set[string]
+	bool | time.Duration | float64 | int64 | string | []string | sets.Set[string] | []byte
 }
 
 type DynValue[T any] struct {
@@ -189,6 +190,8 @@ func parse[T any](input string) (val T, err error) {
 		*v, err = strconv.ParseFloat(strings.TrimSpace(input), 64)
 	case *time.Duration:
 		*v, err = time.ParseDuration(input)
+	case *[]byte:
+		*v, err = base64.StdEncoding.DecodeString(input)
 	case *string:
 		*v = input
 	case *[]string:
