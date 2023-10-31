@@ -75,7 +75,9 @@ func TestBinary(t *testing.T) {
 	set := flag.NewFlagSet("foobar", flag.ContinueOnError)
 	dynFlag := Dyn(set, "some_binary", []byte{2, 1, 0}, "some binary values")
 	assert.Equal(t, []byte{2, 1, 0}, dynFlag.Get(), "value must be default after create")
-	err := set.Set("some_binary", "AAEC\n")
+	err := set.Set("some_binary", "\nAAEC\n") // extra newlines are fine
 	assert.NoError(t, err, "setting value must succeed")
 	assert.Equal(t, []byte{0, 1, 2}, dynFlag.Get(), "value must be set after update")
+	err = set.Set("some_binary", "foo bar")
+	assert.Error(t, err, "setting bogus base64 should fail")
 }
