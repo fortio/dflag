@@ -79,14 +79,19 @@ func (kv KeyValue) String() string {
 	return fmt.Sprintf("%s=%s", kv.Key, kv.Value)
 }
 
-// This convert the key value pairs to bourne shell syntax (vs newer bash export FOO=bar).
 func ToShell(kvl []KeyValue) string {
+	return ToShellWithPrefix("", kvl)
+}
+
+// This convert the key value pairs to bourne shell syntax (vs newer bash export FOO=bar).
+func ToShellWithPrefix(prefix string, kvl []KeyValue) string {
 	var sb strings.Builder
 	keys := make([]string, 0, len(kvl))
 	for _, kv := range kvl {
+		sb.WriteString(prefix)
 		sb.WriteString(kv.String())
 		sb.WriteRune('\n')
-		keys = append(keys, kv.Key)
+		keys = append(keys, prefix+kv.Key)
 	}
 	sb.WriteString("export ")
 	sb.WriteString(strings.Join(keys, " "))

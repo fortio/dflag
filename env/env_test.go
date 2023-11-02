@@ -118,12 +118,12 @@ func TestStructToEnvVars(t *testing.T) {
 	if len(envVars) != 4 {
 		t.Errorf("expected 4 env vars, got %+v", envVars)
 	}
-	str := env.ToShell(envVars)
-	expected := `FOO="a\nfoo with \" quotes and \\ and '"
-BAR="42str"
-A_SPECIAL_BLAH="42"
-HTTP_SERVER="http://localhost:8080"
-export FOO BAR A_SPECIAL_BLAH HTTP_SERVER
+	str := env.ToShellWithPrefix("TST_", envVars)
+	expected := `TST_FOO="a\nfoo with \" quotes and \\ and '"
+TST_BAR="42str"
+TST_A_SPECIAL_BLAH="42"
+TST_HTTP_SERVER="http://localhost:8080"
+export TST_FOO TST_BAR TST_A_SPECIAL_BLAH TST_HTTP_SERVER
 `
 	if str != expected {
 		t.Errorf("\n---expected:---\n%s\n---got:---\n%s", expected, str)
