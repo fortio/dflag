@@ -1,8 +1,13 @@
 package env
 
 import (
+	"fmt"
+	"reflect"
+	"strconv"
 	"strings"
 	"unicode"
+
+	"fortio.org/log"
 )
 
 // Split strings into words, using CamelCase/camelCase/CAMELCase rules.
@@ -41,9 +46,21 @@ func CamelCaseToUpperSnakeCase(s string) string {
 	return strings.ToUpper(strings.Join(words, "_"))
 }
 
+// CamelCaseToLowerSnakeCase converts a string from camelCase or CamelCase
+// to lowe_snake_case. Handles cases like HTTPServer -> http_server.
+// Good for JSON tags for instance.
+func CamelCaseToLowerSnakeCase(s string) string {
+	if s == "" {
+		return ""
+	}
+	words := SplitByCase(s)
+	// ToUpper + Join by _
+	return strings.ToLower(strings.Join(words, "_"))
+}
+
 // CamelCaseToLowerKebabCase converts a string from camelCase or CamelCase
 // to lower-kebab-case. Handles cases like HTTPServer -> http-server.
-// Good for JSON tags and command line flags.
+// Good for command line flags for instance.
 func CamelCaseToLowerKebabCase(s string) string {
 	if s == "" {
 		return ""
@@ -53,17 +70,60 @@ func CamelCaseToLowerKebabCase(s string) string {
 	return strings.ToLower(strings.Join(words, "-"))
 }
 
-/*
-func StructToEnvVars(s interface{}) map[string]string {
-	m := make(map[string]string)
-	// use reflection to get the fields of the struct
-	st := reflect.TypeOf(s)
-	fields := st.Fields()
-	// for each field, get the tag
-	for _, field := range fields {
-		// get the tag
-		tag := field.Tag
-
-	return m
+type KeyValue struct {
+	Key   string
+	Value string // Already quoted/escaped.
 }
-*/
+
+func (kv KeyValue) String() string {
+	return fmt.Sprintf("%s=%s", kv.Key, kv.Value)
+}
+
+// This convert the key value pairs to bourne shell syntax (vs newer bash export FOO=bar).
+func ToShell(kvl []KeyValue) string {
+	var sb strings.Builder
+	keys := make([]string, 0, len(kvl))
+	for _, kv := range kvl {
+		sb.WriteString(kv.String())
+		sb.WriteRune('\n')
+		keys = append(keys, kv.Key)
+	}
+	sb.WriteString("export ")
+	sb.WriteString(strings.Join(keys, " "))
+	sb.WriteRune('\n')
+	return sb.String()
+}
+
+// StructToEnvVars converts a struct to a map of environment variables.
+// The struct can have a `env` tag on each field.
+// The tag should be in the format `env:"ENV_VAR_NAME"`.
+// The tag can also be `env:"-"` to exclude the field from the map.
+// If the field is exportable and the tag is missing we'll use the field name
+// converted to UPPER_SNAKE_CASE (using CamelCaseToUpperSnakeCase()) as the
+// environment variable name.
+func StructToEnvVars(s interface{}) []KeyValue {
+	var envVars []KeyValue
+	v := reflect.ValueOf(s)
+	// if we're passed a pointer to a struct instead of the struct, let that work too
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		log.Errf("Unexpected kind %v, expected a struct", v.Kind())
+		return envVars
+	}
+	t := v.Type()
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		tag := field.Tag.Get("env")
+		if tag == "-" {
+			continue
+		}
+		if tag == "" {
+			tag = CamelCaseToUpperSnakeCase(field.Name)
+		}
+		value := v.Field(i).Interface()
+		envVars = append(envVars, KeyValue{Key: tag, Value: strconv.Quote(fmt.Sprint(value))})
+	}
+	return envVars
+}

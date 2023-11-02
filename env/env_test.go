@@ -1,6 +1,7 @@
 package env_test
 
 import (
+	"strings"
 	"testing"
 
 	"fortio.org/assert"
@@ -38,8 +39,8 @@ func TestSplitByCase(t *testing.T) {
 	}
 }
 
-// TestCamelCaseToUpperSnakeCase tests the CamelCaseToUpperSnakeCase function.
-func TestCamelCaseToUpperSnakeCase(t *testing.T) {
+// TestCamelCaseToSnakeCase tests the CamelCaseToUpperSnakeCase and CamelCaseToLowerSnakeCase functions.
+func TestCamelCaseToSnakeCase(t *testing.T) {
 	tests := []struct {
 		in  string
 		out string
@@ -59,7 +60,11 @@ func TestCamelCaseToUpperSnakeCase(t *testing.T) {
 	}
 	for _, test := range tests {
 		if got := env.CamelCaseToUpperSnakeCase(test.in); got != test.out {
-			t.Errorf("for %q expected %q and got %q", test.in, test.out, got)
+			t.Errorf("for %q expected upper %q and got %q", test.in, test.out, got)
+		}
+		lower := strings.ToLower(test.out)
+		if got := env.CamelCaseToLowerSnakeCase(test.in); got != lower {
+			t.Errorf("for %q expected lower %q and got %q", test.in, lower, got)
 		}
 	}
 }
@@ -86,5 +91,41 @@ func TestCamelCaseToLowerKebabCase(t *testing.T) {
 		if got := env.CamelCaseToLowerKebabCase(test.in); got != test.out {
 			t.Errorf("for %q expected %q and got %q", test.in, test.out, got)
 		}
+	}
+}
+
+type FooConfig struct {
+	Foo        string
+	Bar        string
+	Blah       int `env:"A_SPECIAL_BLAH"`
+	NotThere   int `env:"-"`
+	HTTPServer string
+}
+
+func TestStructToEnvVars(t *testing.T) {
+	foo := FooConfig{
+		Foo:        "a\nfoo with \" quotes and \\ and '",
+		Bar:        "42str",
+		Blah:       42,
+		NotThere:   13,
+		HTTPServer: "http://localhost:8080",
+	}
+	empty := env.StructToEnvVars(42) // error/empty
+	if len(empty) != 0 {
+		t.Errorf("expected empty, got %v", empty)
+	}
+	envVars := env.StructToEnvVars(&foo)
+	if len(envVars) != 4 {
+		t.Errorf("expected 4 env vars, got %+v", envVars)
+	}
+	str := env.ToShell(envVars)
+	expected := `FOO="a\nfoo with \" quotes and \\ and '"
+BAR="42str"
+A_SPECIAL_BLAH="42"
+HTTP_SERVER="http://localhost:8080"
+export FOO BAR A_SPECIAL_BLAH HTTP_SERVER
+`
+	if str != expected {
+		t.Errorf("\n---expected:---\n%s\n---got:---\n%s", expected, str)
 	}
 }
