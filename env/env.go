@@ -54,7 +54,7 @@ func CamelCaseToLowerSnakeCase(s string) string {
 		return ""
 	}
 	words := SplitByCase(s)
-	// ToUpper + Join by _
+	// ToLower + Join by _
 	return strings.ToLower(strings.Join(words, "_"))
 }
 
