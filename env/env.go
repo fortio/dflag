@@ -114,15 +114,6 @@ func SerializeValue(value interface{}) string {
 	}
 }
 
-func kindIsIn(k reflect.Kind, kinds ...reflect.Kind) bool {
-	for _, kind := range kinds {
-		if k == kind {
-			return true
-		}
-	}
-	return false
-}
-
 // StructToEnvVars converts a struct to a map of environment variables.
 // The struct can have a `env` tag on each field.
 // The tag should be in the format `env:"ENV_VAR_NAME"`.
@@ -153,7 +144,16 @@ func StructToEnvVars(s interface{}) []KeyValue {
 		}
 		fieldValue := v.Field(i)
 		stringValue := ""
-		if !kindIsIn(fieldValue.Kind(), reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice) {
+		switch fieldValue.Kind() { //nolint: exhaustive // we have default: for the other cases
+		case reflect.Ptr:
+			if !fieldValue.IsNil() {
+				fieldValue = fieldValue.Elem()
+				stringValue = SerializeValue(fieldValue.Interface())
+			}
+		case reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
+			log.LogVf("Skipping field %s of type %v, not supported", fieldType.Name, fieldType.Type)
+			continue
+		default:
 			value := fieldValue.Interface()
 			stringValue = SerializeValue(value)
 		}
