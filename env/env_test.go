@@ -98,8 +98,10 @@ type FooConfig struct {
 	Foo        string
 	Bar        string
 	Blah       int `env:"A_SPECIAL_BLAH"`
+	ABool      bool
 	NotThere   int `env:"-"`
 	HTTPServer string
+	IntPointer *int
 }
 
 func TestStructToEnvVars(t *testing.T) {
@@ -107,23 +109,27 @@ func TestStructToEnvVars(t *testing.T) {
 		Foo:        "a\nfoo with \" quotes and \\ and '",
 		Bar:        "42str",
 		Blah:       42,
+		ABool:      true,
 		NotThere:   13,
 		HTTPServer: "http://localhost:8080",
+		IntPointer: nil,
 	}
 	empty := env.StructToEnvVars(42) // error/empty
 	if len(empty) != 0 {
 		t.Errorf("expected empty, got %v", empty)
 	}
 	envVars := env.StructToEnvVars(&foo)
-	if len(envVars) != 4 {
-		t.Errorf("expected 4 env vars, got %+v", envVars)
+	if len(envVars) != 6 {
+		t.Errorf("expected 4 env vars, got %d: %+v", len(envVars), envVars)
 	}
 	str := env.ToShellWithPrefix("TST_", envVars)
 	expected := `TST_FOO="a\nfoo with \" quotes and \\ and '"
 TST_BAR="42str"
 TST_A_SPECIAL_BLAH="42"
+TST_A_BOOL=true
 TST_HTTP_SERVER="http://localhost:8080"
-export TST_FOO TST_BAR TST_A_SPECIAL_BLAH TST_HTTP_SERVER
+TST_INT_POINTER=
+export TST_FOO TST_BAR TST_A_SPECIAL_BLAH TST_A_BOOL TST_HTTP_SERVER TST_INT_POINTER
 `
 	if str != expected {
 		t.Errorf("\n---expected:---\n%s\n---got:---\n%s", expected, str)

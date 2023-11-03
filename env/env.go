@@ -99,6 +99,30 @@ func ToShellWithPrefix(prefix string, kvl []KeyValue) string {
 	return sb.String()
 }
 
+func SerializeValue(value interface{}) string {
+	switch v := value.(type) {
+	case bool:
+		res := "false"
+		if v {
+			res = "true"
+		}
+		return res
+	case string:
+		return strconv.Quote(v)
+	default:
+		return strconv.Quote(fmt.Sprint(value))
+	}
+}
+
+func kindIsIn(k reflect.Kind, kinds ...reflect.Kind) bool {
+	for _, kind := range kinds {
+		if k == kind {
+			return true
+		}
+	}
+	return false
+}
+
 // StructToEnvVars converts a struct to a map of environment variables.
 // The struct can have a `env` tag on each field.
 // The tag should be in the format `env:"ENV_VAR_NAME"`.
@@ -119,16 +143,21 @@ func StructToEnvVars(s interface{}) []KeyValue {
 	}
 	t := v.Type()
 	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		tag := field.Tag.Get("env")
+		fieldType := t.Field(i)
+		tag := fieldType.Tag.Get("env")
 		if tag == "-" {
 			continue
 		}
 		if tag == "" {
-			tag = CamelCaseToUpperSnakeCase(field.Name)
+			tag = CamelCaseToUpperSnakeCase(fieldType.Name)
 		}
-		value := v.Field(i).Interface()
-		envVars = append(envVars, KeyValue{Key: tag, Value: strconv.Quote(fmt.Sprint(value))})
+		fieldValue := v.Field(i)
+		stringValue := ""
+		if !kindIsIn(fieldValue.Kind(), reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice) {
+			value := fieldValue.Interface()
+			stringValue = SerializeValue(value)
+		}
+		envVars = append(envVars, KeyValue{Key: tag, Value: stringValue})
 	}
 	return envVars
 }
