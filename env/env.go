@@ -306,6 +306,7 @@ func SetFromEnv(prefix string, s interface{}) {
 		case reflect.Bool:
 			setBool(fieldValue, envVal)
 		default:
+			log.Warnf("Unsupported type %v to set from %s=%q", kind, envName, envVal)
 		}
 	}
 }
