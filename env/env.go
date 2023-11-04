@@ -1,3 +1,22 @@
+// Package env provides conversion from structure to and from environment variables.
+//
+// It supports converting struct fields to environment variables using field tags,
+// handling different data types, and transforming strings between different case
+// conventions, which is useful for generating or parsing environment variables,
+// JSON tags, or command line flags.
+//
+// The package defines several case conversion functions that aid in manipulating
+// strings to fit conventional casing for various programming and configuration contexts.
+// Additionally, it provides functions to serialize structs into slices of key-value pairs
+// where the keys are derived from struct field names transformed to upper snake case by default,
+// or specified explicitly via struct field tags.
+//
+// It also includes functionality to deserialize environment variables back into
+// struct fields, handling pointers and nested structs appropriately, as well as providing
+// shell-compatible output for environment variable definitions.
+//
+// The package leverages reflection to dynamically handle arbitrary struct types,
+// and logs its operations and errors using the 'fortio.org/log' package.
 package env
 
 import (
