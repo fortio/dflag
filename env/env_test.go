@@ -1,6 +1,7 @@
 package env_test
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -165,4 +166,34 @@ export TST_FOO TST_BAR TST_A_SPECIAL_BLAH TST_A_BOOL TST_HTTP_SERVER TST_INT_POI
 	if str != expected {
 		t.Errorf("\n---expected:---\n%s\n---got:---\n%s", expected, str)
 	}
+}
+
+func TestSetFromEnv(t *testing.T) {
+	log.SetLogLevelQuiet(log.Verbose)
+	foo := FooConfig{}
+	envs := []struct {
+		k string
+		v string
+	}{
+		{"TST2_FOO", "another\nfoo"},
+		{"TST2_BAR", "bar"},
+		{"TST2_RECURSE_HERE_INNER_B", "in1"},
+		{"TST2_A_SPECIAL_BLAH", "31"},
+		{"TST2_A_BOOL", "1"},
+		{"TST2_FLOAT_POINTER", "5.75"},
+		{"TST2_INT_POINTER", "73"},
+	}
+	for _, e := range envs {
+		os.Setenv(e.k, e.v)
+	}
+	env.SetFromEnv("TST2_", &foo)
+	assert.Equal(t, foo.Foo, "another\nfoo")
+	assert.Equal(t, foo.Bar, "bar")
+	assert.Equal(t, foo.RecurseHere.InnerB, "in1")
+	assert.Equal(t, foo.Blah, 31)
+	assert.Equal(t, foo.ABool, true)
+	assert.NotEqual(t, foo.FloatPointer, nil)
+	assert.Equal(t, *foo.FloatPointer, 5.75)
+	assert.NotEqual(t, foo.IntPointer, nil)
+	assert.Equal(t, *foo.IntPointer, 73)
 }
