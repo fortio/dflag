@@ -122,6 +122,10 @@ func SerializeValue(value interface{}) string {
 // converted to UPPER_SNAKE_CASE (using CamelCaseToUpperSnakeCase()) as the
 // environment variable name.
 func StructToEnvVars(s interface{}) []KeyValue {
+	return structToEnvVars("", s)
+}
+
+func structToEnvVars(prefix string, s interface{}) []KeyValue {
 	var envVars []KeyValue
 	v := reflect.ValueOf(s)
 	// if we're passed a pointer to a struct instead of the struct, let that work too
@@ -139,6 +143,11 @@ func StructToEnvVars(s interface{}) []KeyValue {
 		if tag == "-" {
 			continue
 		}
+		if fieldType.Anonymous {
+			// Recurse
+			envVars = append(envVars, structToEnvVars("", v.Field(i).Interface())...)
+			continue
+		}
 		if tag == "" {
 			tag = CamelCaseToUpperSnakeCase(fieldType.Name)
 		}
@@ -153,11 +162,15 @@ func StructToEnvVars(s interface{}) []KeyValue {
 		case reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
 			log.LogVf("Skipping field %s of type %v, not supported", fieldType.Name, fieldType.Type)
 			continue
+		case reflect.Struct:
+			// Recurse with prefix
+			envVars = append(envVars, structToEnvVars(tag+"_", fieldValue.Interface())...)
+			continue
 		default:
 			value := fieldValue.Interface()
 			stringValue = SerializeValue(value)
 		}
-		envVars = append(envVars, KeyValue{Key: tag, Value: stringValue})
+		envVars = append(envVars, KeyValue{Key: prefix + tag, Value: stringValue})
 	}
 	return envVars
 }

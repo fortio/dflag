@@ -95,6 +95,16 @@ func TestCamelCaseToLowerKebabCase(t *testing.T) {
 	}
 }
 
+type Embedded struct {
+	InnerA string
+	InnerB string
+}
+
+type HiddenEmbedded struct {
+	HA string
+	HB string
+}
+
 type FooConfig struct {
 	Foo          string
 	Bar          string
@@ -105,6 +115,9 @@ type FooConfig struct {
 	IntPointer   *int
 	FloatPointer *float64
 	WontShowYet  map[string]string
+	Embedded
+	HiddenEmbedded `env:"-"`
+	RecurseHere    Embedded
 }
 
 func TestStructToEnvVars(t *testing.T) {
@@ -119,16 +132,23 @@ func TestStructToEnvVars(t *testing.T) {
 		HTTPServer:   "http://localhost:8080",
 		IntPointer:   &intV,
 		FloatPointer: nil,
+		RecurseHere: Embedded{
+			InnerA: "rec a",
+			InnerB: "rec b",
+		},
 	}
+	foo.InnerA = "inner a"
+	foo.InnerB = "inner b"
 	empty := env.StructToEnvVars(42) // error/empty
 	if len(empty) != 0 {
 		t.Errorf("expected empty, got %v", empty)
 	}
 	envVars := env.StructToEnvVars(&foo)
-	if len(envVars) != 7 {
-		t.Errorf("expected 4 env vars, got %d: %+v", len(envVars), envVars)
+	if len(envVars) != 11 {
+		t.Errorf("expected 11 env vars, got %d: %+v", len(envVars), envVars)
 	}
 	str := env.ToShellWithPrefix("TST_", envVars)
+	//nolint:lll
 	expected := `TST_FOO="a\nfoo with \" quotes and \\ and '"
 TST_BAR="42str"
 TST_A_SPECIAL_BLAH="42"
@@ -136,7 +156,11 @@ TST_A_BOOL=true
 TST_HTTP_SERVER="http://localhost:8080"
 TST_INT_POINTER="199"
 TST_FLOAT_POINTER=
-export TST_FOO TST_BAR TST_A_SPECIAL_BLAH TST_A_BOOL TST_HTTP_SERVER TST_INT_POINTER TST_FLOAT_POINTER
+TST_INNER_A="inner a"
+TST_INNER_B="inner b"
+TST_RECURSE_HERE_INNER_A="rec a"
+TST_RECURSE_HERE_INNER_B="rec b"
+export TST_FOO TST_BAR TST_A_SPECIAL_BLAH TST_A_BOOL TST_HTTP_SERVER TST_INT_POINTER TST_FLOAT_POINTER TST_INNER_A TST_INNER_B TST_RECURSE_HERE_INNER_A TST_RECURSE_HERE_INNER_B
 `
 	if str != expected {
 		t.Errorf("\n---expected:---\n%s\n---got:---\n%s", expected, str)
