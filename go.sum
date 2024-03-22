@@ -1,9 +1,9 @@
-fortio.org/assert v1.2.0 h1:XscfvR8yp4xW7OMCvNbCsieRFDxlwdEcb69+JZRp6LA=
-fortio.org/assert v1.2.0/go.mod h1:039mG+/iYDPO8Ibx8TrNuJCm2T2SuhwRI3uL9nHTTls=
-fortio.org/log v1.12.0 h1:5Yg4pL9Pp0jcWeJYixm2xikMCldVaSDMgDFDmQJZfho=
-fortio.org/log v1.12.0/go.mod h1:1tMBG/Elr6YqjmJCWiejJp2FPvXg7/9UAN0Rfpkyt1o=
-fortio.org/sets v1.0.3 h1:HzewdGjH69YmyW06yzplL35lGr+X4OcqQt0qS6jbaO4=
-fortio.org/sets v1.0.3/go.mod h1:QZVj0r6KP/ZD9ebySW9SgxVNy/NjghUfyHW9NN+WU+4=
+fortio.org/assert v1.2.1 h1:48I39urpeDj65RP1KguF7akCjILNeu6vICiYMEysR7Q=
+fortio.org/assert v1.2.1/go.mod h1:039mG+/iYDPO8Ibx8TrNuJCm2T2SuhwRI3uL9nHTTls=
+fortio.org/log v1.12.1 h1:8JNdFqOFbtifrdbqKkQZchGAoooLLr1J/tD2lYl1ZaI=
+fortio.org/log v1.12.1/go.mod h1:1tMBG/Elr6YqjmJCWiejJp2FPvXg7/9UAN0Rfpkyt1o=
+fortio.org/sets v1.0.4 h1:z5+qleG+9lpbpjGHvRGhfd+E5pJGsLetYl/w4pMc5MM=
+fortio.org/sets v1.0.4/go.mod h1:3W7rRfGhnRubPZsjvaZ2MiepcvWe5rSeHzcOG/mTfMw=
 fortio.org/struct2env v0.4.0 h1:k5alSOTf3YHiB3MuacjDHQ3YhVWvNZ95ZP/a6MqvyLo=
 fortio.org/struct2env v0.4.0/go.mod h1:lENUe70UwA1zDUCX+8AsO663QCFqYaprk5lnPhjD410=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
