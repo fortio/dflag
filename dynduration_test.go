@@ -4,8 +4,8 @@
 package dflag
 
 import (
+	"errors"
 	"flag"
-	"fmt"
 	"testing"
 	"time"
 
@@ -33,7 +33,7 @@ func TestDynDuration_FiresValidators(t *testing.T) {
 	set := flag.NewFlagSet("foobar", flag.ContinueOnError)
 	validator := func(x time.Duration) error {
 		if x > 1*time.Hour {
-			return fmt.Errorf("too long")
+			return errors.New("too long")
 		}
 		return nil
 	}

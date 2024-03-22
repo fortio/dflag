@@ -47,7 +47,7 @@ func LoggerFlagSetup(optionalFlagName ...string) {
 			_, err := log.ValidateLevel(newStr)
 			return err
 		}).WithSyncNotifier(
-		func(old, newStr string) {
+		func(_, newStr string) {
 			_ = log.SetLogLevelStr(newStr) // will succeed as we just validated it first
 		})
 	if len(optionalFlagName) == 0 {

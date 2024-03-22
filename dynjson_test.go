@@ -4,6 +4,7 @@
 package dflag
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"testing"
@@ -59,7 +60,7 @@ func TestDynJSON_FiresValidators(t *testing.T) {
 			return fmt.Errorf("Bad type: %T", val)
 		}
 		if j.FieldString == "" {
-			return fmt.Errorf("FieldString must not be empty")
+			return errors.New("FieldString must not be empty")
 		}
 		return nil
 	}
@@ -140,7 +141,7 @@ func TestDynJSONArray_FiresValidators(t *testing.T) {
 
 		for _, v := range *j {
 			if v.FieldString == "" {
-				return fmt.Errorf("FieldString must not be empty")
+				return errors.New("FieldString must not be empty")
 			}
 		}
 		return nil
