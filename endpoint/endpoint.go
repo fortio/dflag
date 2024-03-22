@@ -6,6 +6,7 @@ package endpoint
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -88,8 +89,8 @@ func (e *FlagsEndpoint) ListFlags(resp http.ResponseWriter, req *http.Request) {
 		}
 		flagSetJSON.Flags = append(flagSetJSON.Flags, flagToJSON(f))
 	})
-	flagSetJSON.ChecksumDynamic = fmt.Sprintf("%x", dflag.ChecksumFlagSet(e.flagSet, dflag.IsFlagDynamic))
-	flagSetJSON.ChecksumStatic = fmt.Sprintf("%x", dflag.ChecksumFlagSet(e.flagSet,
+	flagSetJSON.ChecksumDynamic = hex.EncodeToString(dflag.ChecksumFlagSet(e.flagSet, dflag.IsFlagDynamic))
+	flagSetJSON.ChecksumStatic = hex.EncodeToString(dflag.ChecksumFlagSet(e.flagSet,
 		func(f *flag.Flag) bool { return !dflag.IsFlagDynamic(f) }))
 	flagSetJSON.FlagSetURL = e.setURL
 

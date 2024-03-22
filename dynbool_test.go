@@ -4,8 +4,8 @@
 package dflag
 
 import (
+	"errors"
 	"flag"
-	"fmt"
 	"testing"
 	"time"
 
@@ -37,7 +37,7 @@ func TestDynBool_FiresValidators(t *testing.T) {
 		if b {
 			return nil
 		}
-		return fmt.Errorf("not true")
+		return errors.New("not true")
 	})
 	assert.Error(t, set.Set("some_bool_1", "false"), "error from validator when value does not satisfy validator")
 }

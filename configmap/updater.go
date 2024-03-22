@@ -26,8 +26,8 @@ const (
 )
 
 var (
-	errFlagNotDynamic = fmt.Errorf("flag is not dynamic")
-	errFlagNotFound   = fmt.Errorf("flag not found")
+	errFlagNotDynamic = errors.New("flag is not dynamic")
+	errFlagNotFound   = errors.New("flag not found")
 )
 
 // Updater is the encapsulation of the directory watcher.
@@ -66,7 +66,7 @@ func Setup(flagSet *flag.FlagSet, dirPath string) (*Updater, error) {
 func New(flagSet *flag.FlagSet, dirPath string) (*Updater, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		return nil, fmt.Errorf("dflag: error initializing fsnotify watcher")
+		return nil, errors.New("dflag: error initializing fsnotify watcher")
 	}
 	return &Updater{
 		flagSet:    flagSet,
@@ -81,7 +81,7 @@ func New(flagSet *flag.FlagSet, dirPath string) (*Updater, error) {
 // Initialize reads the values from the directory for the first time.
 func (u *Updater) Initialize() error {
 	if u.started {
-		return fmt.Errorf("dflag: already initialized updater")
+		return errors.New("dflag: already initialized updater")
 	}
 	return u.readAll( /* allowNonDynamic */ false)
 }
@@ -89,7 +89,7 @@ func (u *Updater) Initialize() error {
 // Start kicks off the go routine that watches the directory for updates of values.
 func (u *Updater) Start() error {
 	if u.started {
-		return fmt.Errorf("dflag: updater already started")
+		return errors.New("dflag: updater already started")
 	}
 	if err := u.watcher.Add(u.parentPath); err != nil {
 		return fmt.Errorf("unable to add parent dir %v to watch: %w", u.parentPath, err)
@@ -107,7 +107,7 @@ func (u *Updater) Start() error {
 // Stop stops the auto-updating go-routine.
 func (u *Updater) Stop() error {
 	if !u.started {
-		return fmt.Errorf("dflag: not updating")
+		return errors.New("dflag: not updating")
 	}
 	u.done <- true
 	_ = u.watcher.Remove(u.dirPath)
