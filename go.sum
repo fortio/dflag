@@ -1,13 +1,15 @@
 fortio.org/assert v1.2.1 h1:48I39urpeDj65RP1KguF7akCjILNeu6vICiYMEysR7Q=
 fortio.org/assert v1.2.1/go.mod h1:039mG+/iYDPO8Ibx8TrNuJCm2T2SuhwRI3uL9nHTTls=
-fortio.org/log v1.14.0 h1:ZkIc3Qqwfs9Dd931k07YzoC+bqCpJKEjVlZwxgXW3Nw=
-fortio.org/log v1.14.0/go.mod h1:1tnXMqd5rZAgvSeHJkD2xXpyXRBzdeXtKLZuzNLIwtA=
+fortio.org/log v1.16.0 h1:GhU8/9NkYZmEIzvTN/DTMedDAStLJraWUUVUA2EbNDc=
+fortio.org/log v1.16.0/go.mod h1:t58Spg9njjymvRioh5F6qKGSupEsnMjXLGWIS1i3khE=
 fortio.org/sets v1.2.0 h1:FBfC7R2xrOJtkcioUbY6WqEzdujuBoZRbSdp1fYF4Kk=
 fortio.org/sets v1.2.0/go.mod h1:J2BwIxNOLWsSU7IMZUg541kh3Au4JEKHrghVwXs68tE=
 fortio.org/struct2env v0.4.1 h1:rJludAMO5eBvpWplWEQNqoVDFZr4RWMQX7RUapgZyc0=
 fortio.org/struct2env v0.4.1/go.mod h1:lENUe70UwA1zDUCX+8AsO663QCFqYaprk5lnPhjD410=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
 github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
+github.com/kortschak/goroutine v1.1.2 h1:lhllcCuERxMIK5cYr8yohZZScL1na+JM5JYPRclWjck=
+github.com/kortschak/goroutine v1.1.2/go.mod h1:zKpXs1FWN/6mXasDQzfl7g0LrGFIOiA6cLs9eXKyaMY=
 golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8 h1:LoYXNGAShUG3m/ehNk4iFctuhGX/+R1ZpfJ4/ia80JM=
 golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8/go.mod h1:jj3sYF3dwk5D+ghuXyeI3r5MFf+NT2An6/9dOA95KSI=
 golang.org/x/sys v0.21.0 h1:rF+pYz3DAGSQAxAu1CbC7catZg4ebC4UIeIhKxBZvws=
