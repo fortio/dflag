@@ -55,7 +55,7 @@ func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
 		t.Fatalf("unable to write %v: %v", binaryFlag, err)
 	}
 	// Time based tests aren't great, specially when ran on (slow) CI try to have notification not get events for above.
-	time.Sleep(1 * time.Second)
+	time.Sleep(3 * time.Second)
 	var u *configmap.Updater
 	log.SetLogLevel(log.Debug)
 	if u, err = configmap.Setup(flag.CommandLine, pDir); err != nil {
@@ -76,7 +76,7 @@ func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
 		t.Fatalf("unable to write %v: %v", fName, err)
 	}
 	// Time based tests aren't great, specially when ran on (slow) CI but...
-	time.Sleep(3 * time.Second)
+	time.Sleep(5 * time.Second)
 	newLevel := log.GetLogLevel()
 	if newLevel != log.Info {
 		t.Errorf("Loglevel didn't change as expected, still %v %v", newLevel, newLevel.String())
