@@ -37,7 +37,7 @@ type updaterTestSuite struct {
 
 func (s *updaterTestSuite) SetupTest() {
 	var err error
-	s.tempDir, err = os.MkdirTemp("/tmp", "updater_test")
+	s.tempDir, err = os.MkdirTemp("", "updater_test")
 	assert.NoError(s.T(), err, "failed creating temp directory for testing")
 	s.copyTestDataToDir()
 	s.linkDataDirTo(firstGoodDir)
