@@ -76,7 +76,7 @@ func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
 		t.Fatalf("unable to write %v: %v", fName, err)
 	}
 	// Time based tests aren't great, specially when ran on (slow) CI but...
-	time.Sleep(2 * time.Second)
+	time.Sleep(3 * time.Second)
 	newLevel := log.GetLogLevel()
 	if newLevel != log.Info {
 		t.Errorf("Loglevel didn't change as expected, still %v %v", newLevel, newLevel.String())
@@ -89,7 +89,7 @@ func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
 	if err = os.WriteFile(binaryFlag, []byte{1, 2, 3, 4, 5}, 0o644); err != nil {
 		t.Fatalf("unable to write %v: %v", binaryFlag, err)
 	}
-	time.Sleep(3 * time.Second)
+	time.Sleep(4 * time.Second)
 	// We might get more than 1 event for some reasons, so more than 1 error
 	errCount := u.Errors()
 	if errCount < 1 {
