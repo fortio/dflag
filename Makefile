@@ -10,10 +10,10 @@ OS:=$(shell go env GOOS)
 
 test:
 ifeq ($(OS),darwin)
-        @echo "Skipping some tests on Mac CI runner as something is off with timing, threads or the filesystem there."
-		go test -race . ./dynloglevel ./endpoint ./examples/...
+	@echo "Skipping some tests on Mac CI runner as something is off with timing, threads or the filesystem there."
+	go test -race . ./dynloglevel ./endpoint ./examples/...
 else
-        go test -race ./...
+	go test -race ./...
 endif
 
 .golangci.yml: Makefile
