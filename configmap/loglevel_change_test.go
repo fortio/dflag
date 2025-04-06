@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"runtime"
 	"testing"
 	"time"
 
@@ -29,6 +30,8 @@ import (
 )
 
 func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
+	prev := runtime.GOMAXPROCS(2)
+	t.Log("GOMAXPROCS set to 2, was", prev)
 	binF := dflag.Dyn(flag.CommandLine, "binary_flag", []byte{}, "a test binary flag").WithValidator(func(data []byte) error {
 		l := len(data)
 		if l > 4 {
@@ -55,7 +58,8 @@ func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
 		t.Fatalf("unable to write %v: %v", binaryFlag, err)
 	}
 	// Time based tests aren't great, specially when ran on (slow) CI try to have notification not get events for above.
-	time.Sleep(5 * time.Second)
+	// first sleep shouldn't be necessary as Setup is blocking on initial directory read.
+	// time.Sleep(5 * time.Second)
 	var u *configmap.Updater
 	log.SetLogLevel(log.Debug)
 	if u, err = configmap.Setup(flag.CommandLine, pDir); err != nil {
@@ -76,7 +80,7 @@ func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
 		t.Fatalf("unable to write %v: %v", fName, err)
 	}
 	// Time based tests aren't great, specially when ran on (slow) CI but...
-	time.Sleep(10 * time.Second)
+	time.Sleep(7 * time.Second)
 	newLevel := log.GetLogLevel()
 	if newLevel != log.Info {
 		t.Errorf("Loglevel didn't change as expected, still %v %v", newLevel, newLevel.String())
@@ -89,7 +93,7 @@ func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
 	if err = os.WriteFile(binaryFlag, []byte{1, 2, 3, 4, 5}, 0o644); err != nil {
 		t.Fatalf("unable to write %v: %v", binaryFlag, err)
 	}
-	time.Sleep(5 * time.Second)
+	time.Sleep(7 * time.Second)
 	// We might get more than 1 event for some reasons, so more than 1 error
 	errCount := u.Errors()
 	if errCount < 1 {
