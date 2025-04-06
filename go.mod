@@ -6,7 +6,7 @@ require (
 	fortio.org/assert v1.2.1
 	fortio.org/log v1.17.1
 	fortio.org/sets v1.3.0
-	github.com/fsnotify/fsnotify v1.8.0
+	github.com/fsnotify/fsnotify v1.9.0
 )
 
 require (
