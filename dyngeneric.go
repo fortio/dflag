@@ -3,6 +3,7 @@
 package dflag
 
 import (
+	"cmp"
 	"encoding/base64"
 	"flag"
 	"fmt"
@@ -12,7 +13,6 @@ import (
 	"time"
 
 	"fortio.org/sets"
-	"golang.org/x/exp/constraints"
 )
 
 // DynamicFlagValue interface is a tag to know if a type is dynamic or not.
@@ -317,7 +317,7 @@ func (d *DynValue[T]) WithFileFlag(defaultPath string) (*DynValue[T], *FileReadV
 }
 
 // ValidateRange returns a validator that checks if the value is in the given range.
-func ValidateRange[T constraints.Ordered](fromInclusive T, toInclusive T) func(T) error {
+func ValidateRange[T cmp.Ordered](fromInclusive T, toInclusive T) func(T) error {
 	return func(value T) error {
 		if value > toInclusive || value < fromInclusive {
 			return fmt.Errorf("value %v not in [%v, %v] range", value, fromInclusive, toInclusive)
