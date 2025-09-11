@@ -132,7 +132,7 @@ func (u *Updater) readAll(dynamicOnly bool) error {
 			if errors.Is(err, errFlagNotFound) {
 				log.S(log.Warning, "config map for unknown flag", log.Str("flag", f.Name()), log.Str("path", fullPath))
 				u.warnings.Add(1)
-			} else if !(errors.Is(err, errFlagNotDynamic) && dynamicOnly) {
+			} else if !errors.Is(err, errFlagNotDynamic) || !dynamicOnly {
 				errorStrings = append(errorStrings, fmt.Sprintf("flag %v: %v", f.Name(), err.Error()))
 				u.errors.Add(1)
 			}
@@ -188,7 +188,7 @@ func (u *Updater) watchForUpdates() {
 		select {
 		case event := <-u.watcher.Events:
 			log.LogVf("ConfigMap got fsnotify %v ", event)
-			if event.Name == u.dirPath || event.Name == path.Join(u.dirPath, k8sDataSymlink) { //nolint:nestif
+			if event.Name == u.dirPath || event.Name == path.Join(u.dirPath, k8sDataSymlink) { //nolint:nestif // to fix maybe later
 				// case of the whole directory being re-symlinked
 				switch event.Op {
 				case fsnotify.Create:
