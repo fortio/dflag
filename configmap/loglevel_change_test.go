@@ -37,6 +37,7 @@ func TestDynamicLogLevelAndBinaryFlag(t *testing.T) {
 		return nil
 	})
 	log.SetDefaultsForClientTools()
+	//nolint:usetesting // we create a specific directory name in temp.
 	tmpDir, err := os.MkdirTemp("", "fortio-logger-test")
 	if err != nil {
 		t.Fatalf("unexpected error getting tempdir %v", err)

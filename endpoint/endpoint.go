@@ -34,11 +34,11 @@ func NewFlagsEndpoint(flagSet *flag.FlagSet, setURL string) *FlagsEndpoint {
 }
 
 // HTTPErrf logs and returns an error on the response.
-func HTTPErrf(resp http.ResponseWriter, statusCode int, message string, rest ...interface{}) {
+func HTTPErrf(resp http.ResponseWriter, statusCode int, message string, rest ...any) {
 	resp.WriteHeader(statusCode)
 	resp.Header().Set("Content-Type", "text/plain; charset=UTF-8")
 	log.Errf(message, rest...)
-	_, _ = resp.Write([]byte(fmt.Sprintf(message, rest...)))
+	_, _ = fmt.Fprintf(resp, message, rest...)
 }
 
 // SetFlag updates a dynamic flag to a new value.
@@ -64,7 +64,7 @@ func (e *FlagsEndpoint) SetFlag(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 	resp.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-	_, _ = resp.Write([]byte(fmt.Sprintf("Success %q -> %q", name, value)))
+	_, _ = fmt.Fprintf(resp, "Success %q -> %q", name, value)
 }
 
 // ListFlags provides an HTML and JSON `http.HandlerFunc` that lists all Flags of a `FlagSet`.
@@ -116,7 +116,7 @@ func requestIsBrowser(req *http.Request) bool {
 	return strings.Contains(req.Header.Get("Accept"), "html")
 }
 
-//nolint:lll
+//nolint:lll // embedded html
 var dflagListTemplate = template.Must(template.New("dflag_list").Parse(
 	`
 <html><head>

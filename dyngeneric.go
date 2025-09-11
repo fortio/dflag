@@ -12,6 +12,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"fortio.org/duration"
 	"fortio.org/sets"
 )
 
@@ -84,7 +85,7 @@ func ValidateDynSliceMinElements[T any](count int) func([]T) error {
 // DynValueTypes are the types currently supported by Parse[T] and thus by Dyn[T].
 // DynJSON is special.
 type DynValueTypes interface {
-	bool | time.Duration | float64 | int64 | string | []string | sets.Set[string] | []byte
+	bool | time.Duration | duration.Duration | float64 | int64 | string | []string | sets.Set[string] | []byte
 }
 
 type DynValue[T any] struct {
@@ -198,7 +199,11 @@ func parse[T any](input string) (val T, err error) {
 	case *float64:
 		*v, err = strconv.ParseFloat(strings.TrimSpace(input), 64)
 	case *time.Duration:
-		*v, err = time.ParseDuration(input)
+		*v, err = duration.Parse(input)
+	case *duration.Duration:
+		var d time.Duration
+		d, err = duration.Parse(input)
+		*v = duration.Duration(d)
 	case *[]byte:
 		*v, err = base64.StdEncoding.DecodeString(input)
 	case *string:
@@ -289,6 +294,9 @@ func (d *DynValue[T]) String() string {
 		return strings.Join(v, ",")
 	case []byte:
 		return base64.StdEncoding.EncodeToString(v)
+	case time.Duration:
+		// Use our better duration.String() for regular durations
+		return duration.Duration(v).String()
 	default:
 		return fmt.Sprintf("%v", v)
 	}

@@ -18,6 +18,7 @@ import (
 	"fortio.org/sets"
 )
 
+//nolint:unused // some flags here unused / just for examples
 var (
 	listenPort = flag.Int("port", 8080, "Port the example server listens on.")
 	listenHost = flag.String("host", "0.0.0.0", "Host to bind the example server to.")
@@ -27,14 +28,14 @@ var (
 
 	staticInt = flag.Int("example_my_static_int", 1337, "Something integery here.")
 
-	// With generics typing
+	// With generics typing.
 	dynStr = dflag.Dyn(flag.CommandLine, "example_my_dynamic_string", "initial_value", "Something interesting here.")
 	dynInt = dflag.Dyn(flag.CommandLine, "example_my_dynamic_int", int64(1337), "Something `int`egery here.")
-	// This shows the wrong help until 1.20 and https://github.com/golang/go/issues/53473 workaround is removed
+	// This shows the wrong help until 1.20 and https://github.com/golang/go/issues/53473 workaround is removed.
 	dynBool1 = dflag.Dyn(flag.CommandLine, "example_bool1", false, "Something true... or false. Starting false.")
-	// Or explicit:
+	// Or explicit.
 	dynBool2 = dflag.DynBool(flag.CommandLine, "example_bool2", true, "Something true... or false. Starting true.")
-	// Or new style:
+	// Or new style.
 	dynBool3 = dflag.NewBool(true, "defined in 2 steps... Starting true.")
 	dynStr2  = dflag.New("starting string value", "explanation of the config variable")
 	// This is an example of a dynamically-modifiable JSON flag of an arbitrary type.
@@ -65,7 +66,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed setting up an updater %v", err)
 	}
-	defer u.Stop()
+	defer u.Stop() //nolint:errcheck // just quick example code
 	var dflagEndpoint *endpoint.FlagsEndpoint
 	if *hasSetFlag {
 		setURL := "/debug/flags/set"
@@ -79,8 +80,9 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%d", *listenHost, *listenPort)
 	log.Infof("Serving at: %v", addr)
-	if err := http.ListenAndServe(addr, http.DefaultServeMux); err != nil {
-		log.Fatalf("Failed serving: %v", err)
+	if err := http.ListenAndServe(addr, http.DefaultServeMux); err != nil { //nolint:gosec // just a quick and dirty example
+		log.FErrf("Failed serving: %v", err)
+		return
 	}
 	log.Infof("Done, bye.")
 }
@@ -100,7 +102,7 @@ var defaultPage = template.Must(template.New("default_page").Parse(
 </html>
 `))
 
-func handleDefaultPage(resp http.ResponseWriter, req *http.Request) {
+func handleDefaultPage(resp http.ResponseWriter, _ *http.Request) {
 	resp.WriteHeader(http.StatusOK)
 	resp.Header().Add("Content-Type", "text/html")
 
