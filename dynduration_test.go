@@ -10,15 +10,18 @@ import (
 	"time"
 
 	"fortio.org/assert"
+	"fortio.org/duration"
 )
 
 func TestDynDuration_SetAndGet(t *testing.T) {
 	set := flag.NewFlagSet("foobar", flag.ContinueOnError)
 	dynFlag := DynDuration(set, "some_duration_1", 5*time.Second, "Use it or lose it")
 	assert.Equal(t, 5*time.Second, dynFlag.Get(), "value must be default after create")
-	err := set.Set("some_duration_1", "10h\n")
+	err := set.Set("some_duration_1", "1d3h\n")
 	assert.NoError(t, err, "setting value must succeed")
-	assert.Equal(t, 10*time.Hour, dynFlag.Get(), "value must be set after update")
+	assert.Equal(t, 27*time.Hour, dynFlag.Get(), "value must be set after update")
+	// new string version even for regular duration:
+	assert.Equal(t, "1d3h", dynFlag.String(), "string representation must match")
 	err = set.Set("some_duration_1", "not-a-duration")
 	assert.Error(t, err, "setting bogus value should fail")
 }
@@ -59,6 +62,17 @@ func TestDynDuration_FiresNotifier(t *testing.T) {
 		assert.Fail(t, "failed to trigger notifier")
 	case <-waitCh:
 	}
+}
+
+func TestDynDurationDuration(t *testing.T) {
+	set := flag.NewFlagSet("foobar", flag.ContinueOnError)
+	d := Dyn(set, "some_duration_1", duration.Duration(1*duration.Week), "Test of week")
+	assert.Equal(t, 1*duration.Week, time.Duration(d.Get()), "default value must be correct")
+	err := d.Set("3w2d4h")
+	assert.NoError(t, err, "setting valid duration must succeed")
+	assert.Equal(t, 3*duration.Week+2*duration.Day+4*time.Hour, time.Duration(d.Get()), "set value must be correct")
+	// string version
+	assert.Equal(t, "3w2d4h", d.String(), "string representation must match")
 }
 
 func Benchmark_Duration_Dyn_Get(b *testing.B) {
