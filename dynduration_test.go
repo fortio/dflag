@@ -43,6 +43,7 @@ func TestDynDuration_FiresValidators(t *testing.T) {
 	DynDuration(set, "some_duration_1", 5*time.Second, "Use it or lose it").WithValidator(validator)
 
 	assert.NoError(t, set.Set("some_duration_1", "50m"), "no error from validator when in range")
+	assert.NoError(t, set.Set("some_duration_1", "0"), "no error for 0 without unit")
 	assert.Error(t, set.Set("some_duration_1", "2h"), "error from validator when value out of range")
 }
 
