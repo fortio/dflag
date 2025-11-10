@@ -16,7 +16,7 @@ import (
 // DynJSON creates a `Flag` that is backed by an arbitrary JSON which is safe to change dynamically at runtime.
 // The `value` must be a pointer to a struct that is JSON (un)marshallable.
 // New values based on the default constructor of `value` type will be created on each update.
-func DynJSON(flagSet *flag.FlagSet, name string, value interface{}, usage string) *DynJSONValue {
+func DynJSON(flagSet *flag.FlagSet, name string, value any, usage string) *DynJSONValue {
 	reflectVal := reflect.ValueOf(value)
 
 	if reflectVal.Kind() != reflect.Ptr ||
@@ -35,7 +35,7 @@ func DynJSON(flagSet *flag.FlagSet, name string, value interface{}, usage string
 
 // DynJSONValue is a flag-related JSON struct value wrapper.
 type DynJSONValue struct {
-	DynValue[interface{}]
+	DynValue[any]
 	structType reflect.Type
 }
 

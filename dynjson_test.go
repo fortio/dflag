@@ -54,7 +54,7 @@ func TestDynJSON_IsMarkedDynamic(t *testing.T) {
 func TestDynJSON_FiresValidators(t *testing.T) {
 	set := flag.NewFlagSet("foobar", flag.ContinueOnError)
 
-	validator := func(val interface{}) error {
+	validator := func(val any) error {
 		j, ok := val.(*outerJSON)
 		if !ok {
 			return fmt.Errorf("Bad type: %T", val)
@@ -73,7 +73,7 @@ func TestDynJSON_FiresValidators(t *testing.T) {
 
 func TestDynJSON_FiresNotifier(t *testing.T) {
 	waitCh := make(chan bool, 1)
-	notifier := func(oldVal interface{}, newVal interface{}) {
+	notifier := func(oldVal any, newVal any) {
 		assert.EqualValues(t, defaultJSON, oldVal, "old value in notify must match previous value")
 		assert.EqualValues(t, &outerJSON{FieldInts: []int{42}, FieldString: "bar"}, newVal, "new value in notify must match set value")
 		waitCh <- true
@@ -133,7 +133,7 @@ func TestDynJSONArray_IsMarkedDynamic(t *testing.T) {
 func TestDynJSONArray_FiresValidators(t *testing.T) {
 	set := flag.NewFlagSet("foobar", flag.ContinueOnError)
 
-	validator := func(val interface{}) error {
+	validator := func(val any) error {
 		j, ok := val.(*[]outerJSON)
 		if !ok {
 			return fmt.Errorf("Bad type: %T", val)
@@ -158,7 +158,7 @@ func TestDynJSONArray_FiresValidators(t *testing.T) {
 
 func TestDynJSONArray_FiresNotifier(t *testing.T) {
 	waitCh := make(chan bool, 1)
-	notifier := func(oldVal interface{}, newVal interface{}) {
+	notifier := func(oldVal any, newVal any) {
 		assert.EqualValues(t, defaultJSONArray, oldVal, "old value in notify must match previous value")
 		assert.EqualValues(t, &[]outerJSON{{
 			FieldInts: []int{42}, FieldString: "new-value",

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Sets up a dynamic flag to change the log level dynamically at runtime.
+// Package dynloglevel sets up a dynamic flag to change the log level dynamically at runtime.
 // Use in conjunction with endpoint or configmap.
 // Code was initially in fortio.org/fortio/log before log was extracted to its own repo
 // without any dependencies.

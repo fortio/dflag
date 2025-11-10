@@ -40,7 +40,7 @@ func DynBool(flagSet *flag.FlagSet, name string, value bool, usage string) *DynB
 	return FlagSetBool(flagSet, name, NewBool(value, usage))
 }
 
-// DynStringSetValue implements a dynamic set of strings.
+// DynBoolValue implements dynamic bools.
 type DynBoolValue struct {
 	DynamicBoolValueTag
 	DynValue[bool]
