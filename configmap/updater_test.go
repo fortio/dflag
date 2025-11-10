@@ -101,7 +101,7 @@ func (s *updaterTestSuite) TestDynamicUpdatesPropagate() {
 	s.linkDataDirTo(secondGoodDir)
 	eventually(s.T(), 1*time.Second,
 		assert.ObjectsAreEqualValues, int64(20002),
-		func() interface{} { return s.dynInt.Get() },
+		func() any { return s.dynInt.Get() },
 		"some_dynint value should change to the value from secondGoodDir")
 }
 
@@ -110,13 +110,13 @@ func TestUpdaterSuite(t *testing.T) {
 }
 
 type (
-	assertFunc func(expected, actual interface{}) bool
-	getter     func() interface{}
+	assertFunc func(expected, actual any) bool
+	getter     func() any
 )
 
 // eventually tries a given Assert function 5 times over the period of time.
 func eventually(t *testing.T, duration time.Duration,
-	af assertFunc, expected interface{}, actual getter, msgFmt string, msgArgs ...interface{},
+	af assertFunc, expected any, actual getter, msgFmt string, msgArgs ...any,
 ) {
 	increment := duration / 5
 	for i := 0; i < 5; i++ {

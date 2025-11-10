@@ -145,12 +145,12 @@ func (u *Updater) readAll(dynamicOnly bool) error {
 	return nil
 }
 
-// Return the warnings count.
+// Warnings returns the warnings count.
 func (u *Updater) Warnings() int {
 	return int(u.warnings.Load())
 }
 
-// Return the errors count.
+// Errors returns the errors count.
 func (u *Updater) Errors() int {
 	return int(u.errors.Load())
 }

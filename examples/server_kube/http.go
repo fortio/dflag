@@ -107,7 +107,7 @@ func handleDefaultPage(resp http.ResponseWriter, _ *http.Request) {
 	resp.Header().Add("Content-Type", "text/html")
 
 	actualJSON, _ := dynJSON.Get().(*exampleConfig)
-	err := defaultPage.Execute(resp, map[string]interface{}{
+	err := defaultPage.Execute(resp, map[string]any{
 		"DynString":  dynStr.Get(),
 		"DynInt":     dynInt.Get(),
 		"Policy":     actualJSON.Policy,
